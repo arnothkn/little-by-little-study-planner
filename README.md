@@ -2,6 +2,12 @@
 
 A private, device-local Eye & ENT study planner for the October 15, 2026 exam.
 
+## Open the app
+
+[Open Little by little](https://little-by-little-arnothkn.gentle-lotus-1147.chatgpt.site)
+
+The app is hosted on Sites and accessible to anyone with its link. This GitHub repository remains private. Progress is stored only on the device.
+
 ## Run locally
 
 Clone or download this repository, open a terminal in its folder, and run:
@@ -42,7 +48,7 @@ On upgrading from the original plan, saved schedules rebalance once to include S
 
 This project has an iOS web app manifest, home-screen icons, safe-area-aware layout, and an offline service worker. Your progress is stored on the device; there is no account, analytics, database, or cloud sync.
 
-1. Serve the contents of `dist/` from a trusted HTTPS address on your own server, or use a trusted HTTPS tunnel to the local server. Website hosting and HTTPS tunnels are not configured by this repository.
+1. Open the app link above. You can also self-host the contents of `dist/` on any static HTTPS server.
 2. Open that address in Safari on the iPhone.
 3. Tap **Share → Add to Home Screen** and enable **Open as Web App** if shown.
 4. Open the installed app once while online. Under **Add to your iPhone**, confirm **Offline ready** before disconnecting.
