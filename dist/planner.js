@@ -1,10 +1,11 @@
 export const START='2026-09-18', LEARN_END='2026-09-26', REV_START='2026-09-27', EXAM='2026-10-15', END='2026-10-14';
-export const TITLES={Eye:['History taking','Common eye disease','Common retinal disease','Conjunctivitis','Common orbital disease','AVL','Strabismus','Ocular pharmacology','Chronic visual loss','Common external eye disease','Medication','Eye pain','Neuro-ophthalmology','The irritated eye'],ENT:['Anatomy','External disease','Epistaxis','Common laryngeal problem','Deep neck infection','Common problem in ENT','Chronic rhinitis']};
+export const TITLES={Eye:['History taking','Common eye disease','Common retinal disease','Conjunctivitis','Common orbital disease','AVL','Strabismus','Ocular pharmacology','Chronic visual loss','Common external eye disease','Medication','Eye pain','Neuro-ophthalmology','The irritated eye'],ENT:['Anatomy','External disease','Epistaxis','Common laryngeal problem','Deep neck infection','Common problem in ENT','Chronic rhinitis','Vertigo','Neck mass']};
 export const TOPICS=Object.entries(TITLES).flatMap(([subject,names])=>names.map((title,i)=>({id:`${subject.toLowerCase()}-${i+1}`,title,subject,number:i+1})));
-// Mix subjects without losing the order of either lecture series.
-export const ORDER=Array.from({length:14},(_,i)=>[TOPICS[i],...(i%2===0?[TOPICS[14+i/2]]:[])]).flat();
+// Interleave ENT topics evenly across the Eye sequence, however many topics either subject has, so both progress together.
+export const ORDER=(()=>{const eye=TOPICS.filter(t=>t.subject==='Eye'),ent=TOPICS.filter(t=>t.subject==='ENT'),out=[];let e=0;eye.forEach((topic,i)=>{out.push(topic);const upTo=Math.floor((i+1)*ent.length/eye.length);for(;e<upTo;e++)out.push(ent[e]);});return out;})();
 export const STAGES=['First pass','Revision 1','Revision 2'];
 export const WEIGHTS={off:0,light:.5,normal:1,heavy:2};
+export const TOTAL_TASKS=TOPICS.length*3;
 export const dateObj=d=>new Date(d+'T12:00:00');
 export const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export const localToday=()=>iso(new Date());
@@ -85,7 +86,7 @@ export function moveTask(s,id,date,today=localToday(),swapId=null){
  Object.assign(s,draft);return s;
 }
 export function validateState(raw){
- if(!raw||raw.version!==1||!/^2026-09-(18|19|2[0-6])$/.test(raw.start)||!Array.isArray(raw.weekly)||raw.weekly.length!==7||raw.weekly.some(w=>!(w in WEIGHTS))||!raw.overrides||typeof raw.overrides!=='object'||!Array.isArray(raw.tasks)||raw.tasks.length!==63)throw Error('This is not a valid Little by little backup.');
+ if(!raw||raw.version!==1||!/^2026-09-(18|19|2[0-6])$/.test(raw.start)||!Array.isArray(raw.weekly)||raw.weekly.length!==7||raw.weekly.some(w=>!(w in WEIGHTS))||!raw.overrides||typeof raw.overrides!=='object'||!Array.isArray(raw.tasks)||raw.tasks.length!==TOTAL_TASKS)throw Error('This is not a valid Little by little backup.');
  const validDate=d=>d===null||(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&iso(dateObj(d))===d&&d>=START&&d<='2030-12-31');
  const keys=new Set();
  for(const t of raw.tasks){if(!TOPICS.some(p=>p.id===t.topicId)||![0,1,2].includes(t.stage)||t.id!==`${t.topicId}:${t.stage}`||keys.has(t.id)||![t.date,t.doneAt,t.firstDate,t.rolledFrom].every(validDate)||typeof t.pinned!=='boolean')throw Error('The backup contains an invalid session.');keys.add(t.id);}

@@ -22,7 +22,7 @@ Node.js 20 or later is required. There are no dependencies to install. Alternati
 
 ## The plan
 
-- 21 lecture videos: 14 Eye and 7 ENT.
+- 23 lecture videos: 14 Eye and 9 ENT.
 - First viewing: September 18–26, 2026. Start date can be moved up to September 26.
 - Two revision sessions for every topic: September 27–October 14.
 - Default rhythm: normal weekdays and heavy weekends.
@@ -42,7 +42,7 @@ On upgrading from the original plan, saved schedules rebalance once to include S
 
 **All topics:** see every topic's three sessions and open them directly.
 
-**Your rhythm:** change weekly workloads and rebalance. Use **Release moves & rebalance** to also release manual pins. **Undo last change** reverses the most recent change. Export or restore a JSON backup to move progress between browsers/devices.
+**Settings:** change weekly workloads and rebalance. Use **Release moves & rebalance** to also release manual pins. **Undo last change** reverses the most recent change. Export or restore a JSON backup to move progress between browsers/devices.
 
 ## Install on an iPhone
 
@@ -51,7 +51,7 @@ This project has an iOS web app manifest, home-screen icons, safe-area-aware lay
 1. Open the app link above. You can also self-host the contents of `dist/` on any static HTTPS server.
 2. Open that address in Safari on the iPhone.
 3. Tap **Share → Add to Home Screen** and enable **Open as Web App** if shown.
-4. Open the installed app once while online. Under **Add to your iPhone**, confirm **Offline ready** before disconnecting.
+4. Open the installed app once while online. Confirm the footer shows **LOCAL · OFFLINE READY** before disconnecting.
 
 `localhost` on an iPhone means the iPhone itself, not this Mac. A plain HTTP local-network address can preview the page but does not provide the secure context needed for the offline service worker. See [Apple's installation instructions](https://support.apple.com/guide/iphone/open-as-web-app-iphea86e5236/ios) and [MDN's secure-context requirements](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
 
@@ -59,7 +59,7 @@ Saved progress is specific to the browser/app and origin. Safari and an installe
 
 ## Validation
 
-Run `npm test` for scheduler tests. Tests cover the complete 63-session plan, weighted days, missed-work carry-forward, chronological constraints, invalid moves, atomic swaps, backup validation, completion/undo rules, full daily simulations, and 80 workload combinations.
+Run `npm test` for scheduler tests. Tests cover the complete 69-session plan, weighted days, missed-work carry-forward, chronological constraints, invalid moves, atomic swaps, backup validation, completion/undo rules, full daily simulations, and 80 workload combinations.
 
 The browser checks covered a 390 × 844 mobile layout, checklist persistence across reload, moving/swapping sessions, rhythm changes, undo, and opening the app with the local server stopped. Physical iPhone installation has not been tested.
 
