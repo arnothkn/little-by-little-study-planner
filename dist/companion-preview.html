@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fff6fa"><title>Pip · Daily preview</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main class="preview-shell">
+<h1>Pip, day by day.</h1><p class="subtle">Tick the demo tasks, then press Finish the day to earn the next stage. Your saved plan stays untouched.</p>
+<div id="demo"></div>
+<div id="demo-tasks" class="preview-task-list" aria-label="Demo study checklist"></div>
+<div class="preview-controls" id="dates" aria-label="Preview a completed study day"></div>
+<p id="demo-hint" class="subtle" role="status"></p>
+<details><summary>See all nine crack variations</summary><div id="eggs" class="preview-days"></div></details>
+<p class="subtle"><a href="./#today">Open study app →</a></p>
+</main>
+<script type="module">
+import {START,END,LEARN_END,createState,range,rollover,toggleTask,dateObj,TOPICS,STAGES} from './planner.js';
+import {syncCompanion,refreshCommitment,finishCompanionDay,companionStatus} from './companion.js';
+import {companionArt,companionCard,bounceCompanion,celebrateCompanion,captureRewardFill,animateRewardFill} from './companion-view.js';
+import {MAX_CRACK_STAGES} from './egg-cracks.js';
+const snapshots=new Map(),plan=createState(START);
+syncCompanion(plan,START);
+for(const date of range(START,END)){
+  rollover(plan,date);refreshCommitment(plan,date);syncCompanion(plan,date);
+  snapshots.set(date,structuredClone(plan));
+  for(const t of plan.tasks.filter(t=>t.date===date&&!t.doneAt)){
+    toggleTask(plan,t.id,date);syncCompanion(plan,date);
+  }
+  if(companionStatus(plan,date).canFinish)finishCompanionDay(plan,date);
+}
+let day=START,sample;
+const label=date=>dateObj(date).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+function show(date){day=date;sample=structuredClone(snapshots.get(date));render();}
+function render(){
+ const previousFill=captureRewardFill(document.querySelector('#demo'));
+ document.querySelector('#demo').innerHTML=companionCard(sample,day);
+ animateRewardFill(document.querySelector('#demo'),previousFill);
+ document.querySelector('#dates').innerHTML='<span class="phase-label">FIRST PASS</span>'+range(START,LEARN_END).map(date=>`<button data-preview-date="${date}" aria-pressed="${date===day}">${label(date)}</button>`).join('')+'<span class="phase-label">REVISION</span>'+range('2026-09-27',END).map(date=>`<button data-preview-date="${date}" aria-pressed="${date===day}">${label(date)}</button>`).join('');
+ const s=companionStatus(sample,day);
+ document.querySelector('#demo-tasks').innerHTML=s.required.map(id=>{const t=sample.tasks.find(t=>t.id===id),p=TOPICS.find(p=>p.id===t.topicId);return `<label><input type="checkbox" data-demo-task="${id}" ${t.doneAt?'checked':''}>${p.title} · ${STAGES[t.stage]}</label>`;}).join('');
+ document.querySelector('#demo-hint').textContent=`${label(day)} · ${s.finished?'Reward claimed.':s.canFinish?'Ready to finish the day.':'Complete the demo checklist to fill the button.'}`;
+}
+document.addEventListener('click',event=>{
+ const b=event.target.closest('button');if(!b)return;
+ if(b.hasAttribute('data-bounce'))bounceCompanion(b);
+ else if(b.dataset.previewDate)show(b.dataset.previewDate);
+ else if(b.hasAttribute('data-finish-day')){finishCompanionDay(sample,day);render();celebrateCompanion(document.querySelector('#demo [data-bounce]'));}
+});
+document.addEventListener('change',event=>{if(event.target.dataset.demoTask){toggleTask(sample,event.target.dataset.demoTask,day);syncCompanion(sample,day);render();}});
+document.querySelector('#eggs').innerHTML=Array.from({length:MAX_CRACK_STAGES+1},(_,i)=>`<div class="preview-stage">${companionArt({crack:i})}<span class="preview-stage-label">${i===0?'Before studying':`Completed day ${i}`}</span></div>`).join('');
+show(day);
+</script></body></html>

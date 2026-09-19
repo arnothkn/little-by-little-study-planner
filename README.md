@@ -1,12 +1,12 @@
 # Little by little
 
-A private, device-local Eye & ENT study planner for the October 15, 2026 exam.
+A device-local Eye & ENT study planner for the October 15, 2026 exam.
 
 ## Open the app
 
-[Open Little by little](https://little-by-little-arnothkn.gentle-lotus-1147.chatgpt.site)
+[Open Little by little](https://arnothkn.github.io/little-by-little-study-planner/)
 
-The app is hosted on Sites and accessible to anyone with its link. This GitHub repository remains private. Progress is stored only on the device.
+The app and source repository are public, hosted on GitHub Pages. Each person’s progress is stored only on their own device.
 
 ## Run locally
 
@@ -32,11 +32,11 @@ Node.js 20 or later is required. There are no dependencies to install. Alternati
 - Late work redistributes when the app opens, returns to the foreground, or detects a new local calendar day. The plan never marks missed work complete.
 - If the first-pass deadline is missed, unfinished videos remain and move into catch-up days. If the remaining dates cannot accommodate ordered reviews, the app flags the conflict and keeps sessions under **Needs a place**. Completing every session still depends on the student doing the work.
 
-On upgrading from the original plan, saved schedules rebalance once to include September 26. Completed sessions and valid manual pins remain. The default September 19 workload is now three videos.
+On upgrading from the original plan, saved schedules rebalance once to include September 26. Completed sessions and valid manual pins remain. The daily workload depends on the saved rhythm and any carried-over work.
 
 ## Everyday use
 
-**Today:** tick completed sessions. Tap a completed circle to undo. Revisions require the previous session to be complete and the minimum spacing to have elapsed.
+**Today:** tick completed sessions. Cards stay in place as they are checked. The glowing **Finish the day** button fills smoothly with each task; press it after the full checklist is complete to claim the egg’s next crack or feed and grow Pip. Tap a completed circle to undo. Revisions require the previous session to be complete and the minimum spacing to have elapsed.
 
 **Calendar:** tap a date to see sessions. Change its workload to override the weekly default. Tap ↗ on a session to move it or choose another session on the destination date to swap. On desktop, drag sessions from the selected day's list onto calendar dates. Manual moves are pinned, including if intentionally placed on an off day. Later reviews adjust as needed. Moving sessions cannot put first-pass work beyond September 26 while that deadline is still achievable.
 
@@ -56,6 +56,12 @@ This project has an iOS web app manifest, home-screen icons, safe-area-aware lay
 `localhost` on an iPhone means the iPhone itself, not this Mac. A plain HTTP local-network address can preview the page but does not provide the secure context needed for the offline service worker. See [Apple's installation instructions](https://support.apple.com/guide/iphone/open-as-web-app-iphea86e5236/ios) and [MDN's secure-context requirements](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
 
 Saved progress is specific to the browser/app and origin. Safari and an installed app may have separate storage. Export a backup before switching origins, clearing browser data, or changing devices, then restore it in the destination. Restoring a backup replaces the current plan; the previous plan remains available through **Undo last change** when browser storage works. Offline caching covers this app, not lecture videos; video URLs or files were not supplied.
+
+## Getting updates
+
+Connect to the internet and reload the existing browser tab, or fully close and reopen the installed home-screen app. If the old interface remains, leave the app open online briefly, then close and reopen once more. The same app URL and local storage key are retained, so an ordinary update preserves saved progress. Reinstallation and clearing website data are unnecessary.
+
+The offline worker fetches fresh application files during installation and replaces the previous app cache. Older 21-topic saved plans are upgraded without discarding completed sessions or valid manual moves.
 
 ## Validation
 
