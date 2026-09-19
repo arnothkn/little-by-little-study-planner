@@ -85,12 +85,33 @@ export function moveTask(s,id,date,today=localToday(),swapId=null){
  if(draft.tasks.find(x=>x.id===id).date!==date||(other&&draft.tasks.find(x=>x.id===other.id).date!==old))throw Error('This swap conflicts with the review order. Choose another session.');
  Object.assign(s,draft);return s;
 }
+function validateCompanion(value, tasks) {
+  if (value === undefined) return;
+  const ids = new Set(tasks.map(t => t.id));
+  const date = d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= START && d <= '2030-12-31' && new Date(d+'T12:00:00Z').toISOString().slice(0,10) === d;
+  const list = a => Array.isArray(a) && a.length <= tasks.length && new Set(a).size === a.length && a.every(id => ids.has(id));
+  const credit = c => c && list(c.egg) && list(c.revision) && c.egg.every(id => tasks.find(t => t.id === id).stage === 0) && c.revision.every(id => tasks.find(t => t.id === id).stage > 0);
+  if (!value || value.version !== 1 || !date(value.since) || !credit(value.baseline) || !value.days || Array.isArray(value.days) || typeof value.days !== 'object' || Object.keys(value.days).length > 1600) throw Error('The backup contains invalid companion progress.');
+  for (const [day, entry] of Object.entries(value.days)) {
+    if (!date(day) || !entry || !list(entry.required) || typeof entry.started !== 'boolean' || typeof entry.fed !== 'boolean' || !(entry.reward === null || credit(entry.reward))) throw Error('The backup contains an invalid companion day.');
+  }
+}
+
 export function validateState(raw){
- if(!raw||raw.version!==1||!/^2026-09-(18|19|2[0-6])$/.test(raw.start)||!Array.isArray(raw.weekly)||raw.weekly.length!==7||raw.weekly.some(w=>!(w in WEIGHTS))||!raw.overrides||typeof raw.overrides!=='object'||!Array.isArray(raw.tasks)||raw.tasks.length!==TOTAL_TASKS)throw Error('This is not a valid Little by little backup.');
+ const addedTopicIds=['ent-8','ent-9'];
+ const legacy=Array.isArray(raw?.tasks)&&raw.tasks.length===63&&!raw.tasks.some(t=>addedTopicIds.includes(t.topicId));
+ if(!raw||raw.version!==1||!/^2026-09-(18|19|2[0-6])$/.test(raw.start)||!Array.isArray(raw.weekly)||raw.weekly.length!==7||raw.weekly.some(w=>!(w in WEIGHTS))||!raw.overrides||typeof raw.overrides!=='object'||!Array.isArray(raw.tasks)||(raw.tasks.length!==TOTAL_TASKS&&!legacy))throw Error('This is not a valid Little by little backup.');
  const validDate=d=>d===null||(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&iso(dateObj(d))===d&&d>=START&&d<='2030-12-31');
  const keys=new Set();
  for(const t of raw.tasks){if(!TOPICS.some(p=>p.id===t.topicId)||![0,1,2].includes(t.stage)||t.id!==`${t.topicId}:${t.stage}`||keys.has(t.id)||![t.date,t.doneAt,t.firstDate,t.rolledFrom].every(validDate)||typeof t.pinned!=='boolean')throw Error('The backup contains an invalid session.');keys.add(t.id);}
  for(const [d,w] of Object.entries(raw.overrides))if(!validDate(d)||!(w in WEIGHTS))throw Error('The backup contains an invalid day.');
  for(const t of raw.tasks.filter(t=>t.doneAt&&t.stage>0)){const prev=prevTask(raw,t);if(!prev?.doneAt||t.doneAt<'2026-09-26'||diffDays(t.doneAt,prev.doneAt)<(t.stage===1?1:3))throw Error('The backup has reviews in the wrong order.');}
- return structuredClone(raw);
+ validateCompanion(raw.companion,raw.tasks);
+ const restored=structuredClone(raw);
+ if(legacy){
+  // The expanded lecture list must not discard an older 21-topic saved plan.
+  restored.tasks.push(...createState(START).tasks.filter(t=>addedTopicIds.includes(t.topicId)).map(t=>({...t,date:null,firstDate:null})));
+  restored.scheduleRevision=1;
+ }
+ return restored;
 }
