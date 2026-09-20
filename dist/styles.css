@@ -19,3 +19,49 @@
 .preview-shell{max-width:920px;margin:30px auto;padding:0 24px}.preview-shell h1{font-size:34px;margin:0 0 12px}.preview-shell>p{margin:10px 0 20px}.preview-shell .companion-card{max-width:520px;margin:0 auto;min-height:280px}.preview-shell .companion-card .companion-art{width:224px;height:236px}.preview-shell .companion-card .egg-cracks{height:224px}.preview-shell .companion-card .companion-ground{left:62px}
 .preview-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:22px 0}.preview-controls button{border:1px solid #e1bbc9;background:white;border-radius:20px;padding:10px 14px;min-height:42px;font-size:12px}.preview-controls button[aria-pressed=true]{color:#fff;background:#bc2466;border-color:#bc2466}.preview-controls .phase-label{flex-basis:100%;text-align:center;font-size:11px;color:var(--muted);margin:8px 0 0}.preview-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}.preview-stage{border:1px solid var(--line);border-radius:18px;padding:8px;background:#fff7f6;text-align:center;font-size:11px}.preview-stage .companion-art{margin:auto;width:130px;height:142px;max-width:100%}.preview-stage .companion-ground{left:32px;width:66px;bottom:10px}.preview-stage .egg-cracks{height:130px}.preview-stage-label{display:block;margin:4px 0 7px}.preview-shell details{margin-top:32px}.preview-shell summary{font-size:12px;color:var(--muted);cursor:pointer}
 @media(max-width:600px){.companion-card{min-height:200px;padding:6px 16px;border-radius:17px}.companion-art{width:170px;height:182px}.egg-cracks{height:170px}.companion-ground{left:40px;width:90px;bottom:10px}.preview-shell{margin:25px auto;padding:0 18px}.preview-shell h1{font-size:29px}.preview-shell .companion-card{min-height:265px}.preview-days{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Personal extras share the daily list without contributing to study rewards. */
+.add-todo{display:flex;align-items:center;gap:5px;white-space:nowrap;background:#fce7f3;border:1px solid #f3c5dc;color:#a82865;border-radius:20px;padding:9px 13px;min-height:44px;font-size:12px;font-weight:600}.add-todo:hover{background:#f9d6e8}.add-todo>span{font-size:20px;line-height:1}.todo-card h3{overflow-wrap:anywhere}.subject.personal{background:#f0edee;background:color-mix(in srgb,var(--todo-colour) 22%,white);color:#39353d}.day-list-actions{display:flex;justify-content:flex-end;margin:14px 0 12px}.todo-card.done{background:#f4f3f2}.todo-card .more{display:grid;place-items:center}.todo-colours{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.todo-swatch{width:38px;height:38px;border:5px solid white;outline:1px solid var(--line);border-radius:50%;background:var(--swatch);padding:0}.todo-swatch[aria-pressed=true]{outline:2px solid var(--ink);box-shadow:0 0 0 4px #eeecea}.todo-swatch:focus-visible{outline:3px solid #c9852f;outline-offset:3px}.custom-todo-colour{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--muted);cursor:pointer}.field .custom-todo-colour input{width:44px;height:38px;padding:3px;border-radius:9px;cursor:pointer}.todo-form-actions{display:flex;justify-content:space-between;align-items:center;gap:16px}.todo-delete{color:#a45436;min-height:44px}
+
+/* Subtle glass accents; the main study surfaces keep their original simplicity. */
+.sidebar{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:#f7f7f6ed}
+.nav-item{border-radius:12px}
+.nav-item.active{background:linear-gradient(135deg,#fce7f3,#f8dfeb);box-shadow:inset 0 1px 0 #ffffffb3}
+.task-card,.progress-card,.calendar-card,.panel,.stat{box-shadow:inset 0 1px 0 #ffffffb3}
+.button{border-radius:11px;background:linear-gradient(160deg,#df3380,#cd246d);box-shadow:inset 0 1px 0 #ffffff40}
+.button.secondary{background:#ffffff66;box-shadow:inset 0 1px 0 #fff}
+.button.ghost{background:var(--pale)}.button.danger{background:#f6ddd2;color:#a1481f}
+.add-todo{background:linear-gradient(135deg,#fff5fa,#fce7f3);border-color:#f0d4e1;box-shadow:inset 0 1px 0 #fff}
+@media(max-width:600px){.sidebar{background:#f7f7f6e6;border-radius:0;box-shadow:none}}
+@media(prefers-reduced-transparency:reduce){.sidebar{background:var(--paper);-webkit-backdrop-filter:none;backdrop-filter:none}}
+
+/* Glass sheets: translucent surface, soft refraction and bright rim lighting. */
+dialog{
+ border:1px solid rgba(255,255,255,.85);border-radius:30px;
+ background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,249,252,.58) 48%,rgba(242,240,251,.68));
+ -webkit-backdrop-filter:blur(22px) saturate(155%);backdrop-filter:blur(22px) saturate(155%);
+ box-shadow:0 28px 80px #352c4c30,0 8px 24px #352c4c14,inset 0 2px 1px #ffffffed,inset 0 -1px 2px #ffffffa6;
+}
+dialog::backdrop{background:rgba(43,35,51,.21);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+dialog[open]{animation:glass-appear .24s cubic-bezier(.2,.8,.2,1)}
+dialog .eyebrow,dialog p,dialog .badge{color:#57505c}
+dialog .field input,dialog .field select{background:rgba(255,255,255,.54);border:1px solid #ffffffc9;border-radius:14px;box-shadow:inset 0 1px 3px #51435b0d,0 1px 0 #ffffffa6}
+dialog .field input:focus,dialog .field select:focus{background:rgba(255,255,255,.78)}
+dialog .dialog-close{border-radius:50%;width:40px;height:40px;background:#ffffff66;border:1px solid #ffffffb3;box-shadow:inset 0 1px 1px #fff,0 2px 8px #352c4c0a}
+dialog .dialog-close:hover{background:#ffffffb3}
+dialog .button{border:1px solid #ffffff70;border-radius:16px;background:linear-gradient(145deg,#e84291,#bd2168);box-shadow:inset 0 1px 0 #ffffff66,0 5px 14px #ad246e26}
+dialog .button.secondary{background:#ffffff66;border-color:#ffffffd9;color:#a82865;box-shadow:inset 0 1px 0 #ffffffb3,0 3px 12px #352c4c0a}
+dialog .todo-swatch{border-color:#ffffffad;outline-color:#ffffffb3;box-shadow:0 2px 5px #352c4c14}
+dialog .todo-swatch[aria-pressed=true]{outline:2px solid #625465;box-shadow:0 0 0 4px #ffffff85}
+@keyframes glass-appear{from{opacity:0;transform:translateY(10px) scale(.975)}to{opacity:1;transform:translateY(0) scale(1)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){dialog{background:#faf7fa}}
+@media(prefers-reduced-transparency:reduce){dialog{background:#faf7fa;-webkit-backdrop-filter:none;backdrop-filter:none}dialog::backdrop{background:#26262b66}}
+@media(prefers-reduced-motion:reduce){dialog[open]{animation:none}}
+
+/* One shared highlight slides between destinations without moving the labels. */
+nav{position:relative;isolation:isolate}
+.nav-highlight{position:absolute;top:0;left:0;z-index:-1;pointer-events:none;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#f8dfeb);box-shadow:inset 0 1px 0 #ffffffb3}
+nav.nav-ready .nav-highlight{transition:transform .32s cubic-bezier(.22,.8,.25,1),width .32s cubic-bezier(.22,.8,.25,1),height .32s cubic-bezier(.22,.8,.25,1)}
+nav.has-highlight .nav-item.active{background:transparent;box-shadow:none}
+.nav-item{transition:color .2s ease}
+@media(max-width:600px){.nav-highlight{border-radius:9px}}
+@media(prefers-reduced-motion:reduce){nav.nav-ready .nav-highlight,.nav-item{transition:none}}

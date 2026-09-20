@@ -51,7 +51,7 @@ This project has an iOS web app manifest, home-screen icons, safe-area-aware lay
 1. Open the app link above. You can also self-host the contents of `dist/` on any static HTTPS server.
 2. Open that address in Safari on the iPhone.
 3. Tap **Share → Add to Home Screen** and enable **Open as Web App** if shown.
-4. Open the installed app once while online. Confirm the footer shows **LOCAL · OFFLINE READY** before disconnecting.
+4. Open the installed app once while online and allow it to finish loading before disconnecting.
 
 `localhost` on an iPhone means the iPhone itself, not this Mac. A plain HTTP local-network address can preview the page but does not provide the secure context needed for the offline service worker. See [Apple's installation instructions](https://support.apple.com/guide/iphone/open-as-web-app-iphea86e5236/ios) and [MDN's secure-context requirements](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
 
@@ -77,3 +77,5 @@ The browser checks covered a 390 × 844 mobile layout, checklist persistence acr
 - `dist/sw.js`: same-origin offline app caching.
 - `server.mjs`: dependency-free local preview server on port 4173.
 - `tests/planner.test.mjs`: scheduler tests.
+
+Personal to-dos appear alongside study sessions in the same daily list on Today and Calendar, with a preset or custom colour. They have their own completion checkboxes and can be edited, moved to another day, or deleted. They stay on their chosen day when the study schedule rebalances and never count toward Finish the day or Pip’s growth. They are saved locally and included in backups and Undo.
