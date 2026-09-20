@@ -1,3 +1,4 @@
+import {validateTodos} from './todos.js';
 export const START='2026-09-18', LEARN_END='2026-09-26', REV_START='2026-09-27', EXAM='2026-10-15', END='2026-10-14';
 export const TITLES={Eye:['History taking','Common eye disease','Common retinal disease','Conjunctivitis','Common orbital disease','AVL','Strabismus','Ocular pharmacology','Chronic visual loss','Common external eye disease','Medication','Eye pain','Neuro-ophthalmology','The irritated eye'],ENT:['Anatomy','External disease','Epistaxis','Common laryngeal problem','Deep neck infection','Common problem in ENT','Chronic rhinitis','Vertigo','Neck mass']};
 export const TOPICS=Object.entries(TITLES).flatMap(([subject,names])=>names.map((title,i)=>({id:`${subject.toLowerCase()}-${i+1}`,title,subject,number:i+1})));
@@ -18,7 +19,7 @@ export const weight=(s,d)=>WEIGHTS[weightName(s,d)];
 export const topicOf=t=>TOPICS.find(x=>x.id===t.topicId);
 export const prevTask=(s,t)=>s.tasks.find(x=>x.topicId===t.topicId&&x.stage===t.stage-1);
 export function createState(today=localToday()){
- const s={version:1,start:START,weekly:['heavy','normal','normal','normal','normal','normal','heavy'],overrides:{},tasks:ORDER.flatMap(topic=>[0,1,2].map(stage=>({id:`${topic.id}:${stage}`,topicId:topic.id,stage,date:null,firstDate:null,doneAt:null,pinned:false,rolledFrom:null}))),lastDay:today};
+ const s={version:1,start:START,weekly:['heavy','normal','normal','normal','normal','normal','heavy'],overrides:{},todos:[],tasks:ORDER.flatMap(topic=>[0,1,2].map(stage=>({id:`${topic.id}:${stage}`,topicId:topic.id,stage,date:null,firstDate:null,doneAt:null,pinned:false,rolledFrom:null}))),lastDay:today};
  replan(s,today);return s;
 }
 function bounds(s,t,today){
@@ -108,6 +109,7 @@ export function validateState(raw){
  for(const t of raw.tasks.filter(t=>t.doneAt&&t.stage>0)){const prev=prevTask(raw,t);if(!prev?.doneAt||t.doneAt<'2026-09-26'||diffDays(t.doneAt,prev.doneAt)<(t.stage===1?1:3))throw Error('The backup has reviews in the wrong order.');}
  validateCompanion(raw.companion,raw.tasks);
  const restored=structuredClone(raw);
+ restored.todos=validateTodos(raw.todos);
  if(legacy){
   // The expanded lecture list must not discard an older 21-topic saved plan.
   restored.tasks.push(...createState(START).tasks.filter(t=>addedTopicIds.includes(t.topicId)).map(t=>({...t,date:null,firstDate:null})));
