@@ -1,24 +1,45 @@
-# Pip, the study companion
+# Companions
 
-Run `npm start`, then open http://localhost:4173/companion-preview.html to inspect every crack stage and try a sample feeding. The preview never reads or writes the real app's storage.
+Run `npm start`. The real app is at http://localhost:4173/. For a working demo of the same UI with isolated, in-memory progress, open http://localhost:4173/?preview=companions#today. The preview banner links to onboarding, a new egg, a growing companion, and post-exam care. Refresh resets the demo. It never reads or writes the real plan or its undo history. The previous `companion-preview.html` address redirects here.
 
-## Rules
+## Rewards and onboarding
 
-- First pass target: September 26, 2026, inclusive. Revision target: October 14, before the October 15 exam.
-- A complete checklist unlocks **Finish the day**. The button fills with pink as tasks are checked, stays disabled until every required session is complete, and only banks progress when pressed. Each completed day with first-pass work advances the shell by exactly one cumulative crack stage, regardless of light or heavy workload. There are nine crack stages: the original eight plus one final branching variation. If catch-up extends past these stages, the egg holds its final cracked appearance until all 23 videos and the current day are complete, then hatches.
-- After hatching, **Finish the day** also feeds Pip in the same action. One recorded feeding per day banks completed revisions; growth is the share of 46 reviews banked. Completing a partial day or simply opening the app does not advance Pip.
-- Missed work is handled by the existing scheduler. The companion waits until a later complete catch-up day. Off days cannot create rewards. An unclaimed completed day can be collected on a later rest day, so forgetting the final button press cannot strand the chick. Targets do not force an unearned hatch or growth.
-- Before studying, calendar/rhythm changes update the day's commitment. After the first completion, the day's task IDs stay in the commitment, including tasks subsequently moved away. New work due today joins it. Moved outstanding tasks remain accessible in Calendar and All topics.
-- Rewards are checked against actual completion dates. Undoing work removes the affected day's reward; undone reviews cannot keep feeding credit. Progress travels in the existing JSON backups and Undo snapshots.
-- Work completed on earlier days before this feature was installed is retained as a baseline. Work on the current day still needs the daily gate. No historical feeding streak is fabricated.
-- Original 21-topic saved plans are upgraded to the current 23-topic list without discarding completions or pins.
+- Every complete study checklist unlocks **Finish the day**. Pressing it creates one reward for that date. Personal to-dos never count toward this gate. Off days and partial days create no rewards.
+- Pip is the only companion at first. The first four rewards automatically warm Pip's egg; the fourth hatches Pip and reveals Companions. Later rewards bank for explicit spending. Study dates remain first pass through September 26, revision through October 14, exam October 15.
+- Previously hatched Pip retains its growth. Previously credited days are consumed by migration, not duplicated as banked rewards. Credited days on an unhatched legacy save carry into the four-reward egg. Existing baseline work is retained.
+- A completed but unclaimed study day can still be collected on a rest day. It credits its original date.
+- Missed sessions still roll forward. Moving tasks away after starting does not bypass the committed checklist.
 
-## Implementation and checks
+## Companion home
 
-`dist/companion.js` owns the daily ledger and reward calculation; `dist/companion-view.js` renders the card. The existing scheduler still owns all study dates. Progress is stored in the existing localStorage record under its optional `companion` field.
+Choose Minty's triceratops egg after Pip hatches. Adoption is free. The current catalog has one of each species and supports one unhatched egg at a time. Select either companion whenever you like; the selection determines the Today artwork and the recipient of care. Each keeps its own progress.
 
-The three bundled 3D PNGs are from Microsoft Fluent Emoji under MIT; source links and the license are in `dist/art/`. Progressive cracks are an independent SVG overlay: a thin line with a warm offset shadow, matching the simple original treatment. No generated raster crack artwork is used. The artwork is a keyboard-accessible button with a gentle tap bounce (opacity feedback for reduced-motion users). The companion card contains only the artwork and the daily reward button. After claiming, the button reads “Day finished ✓” and is disabled. Undoing work or adding new work reopens the same day’s reward. The service worker precaches all companion modules and artwork for offline use.
+One reward warms the selected egg or feeds the selected hatched companion. Four warmings hatch an egg. Every three feeds reaches another level, up to level five (12 feeds). A fully grown companion cannot consume further rewards. Banked rewards have no daily spending cap and never expire. Finish the day does not silently feed a companion after onboarding.
 
-`npm test` covers incomplete days, catch-up, date targets, late finishes, schedule changes, undo, feed gating, repeat feeding, upgrades, and backup validation, alongside the existing planner tests. Browser verification covers milestone previews, feeding, image loading, and a 390px phone layout.
+The artwork uses the existing pink-and-peach card. Tapping or keyboard-activating it bounces the character. Feeding and hatching trigger a short celebration. Reduced-motion preferences are respected.
 
-No push or deployment is part of local preview approval.
+## After the exam
+
+From October 16, a day with no study commitment or unclaimed study reward can have one custom daily goal. Complete it and press Finish the day for one reward. Completion alone awards nothing. Undoing completion revokes its reward and any care funded by it. Personal to-dos remain independent. This is the provisional default pending the user's preference between a custom goal, timer, or check-in.
+
+## Data and migration
+
+`dist/companion.js` retains the study commitment ledger and its legacy calculations for migration compatibility. `dist/collection.js` adds collection, wallet, selection, explicit spending, and post-exam goals. `companion-view.js` renders the Today card and home; `app.js` connects the same persistence, backups, validation, cross-tab updates, and undo paths as study actions.
+
+`state.collection` contains a schema version, selected companion, adopted species, historical legacy-day identifiers, spends, and daily goals. Each spend references its original earning date, recipient, and action (`warm` or `feed`). Balance and growth are derived rather than trusted counters.
+
+Synchronization checks claims against actual completed task IDs and dates, including historical days. Invalid rewards lose their spends. If an earlier warming is undone, later feeding that no longer has a hatched recipient is refunded. Rechecking study work requires another explicit Finish the day claim. Selection, reload, and backup restoration cannot spend the same reward twice.
+
+Legacy growth uses the original baseline and the frozen set of old claimed dates. New study days cannot automatically grow Pip after migration. The old ledger's `fed` flag serves compatibility only; new feeding uses the explicit care ledger.
+
+Validation rejects unknown species, duplicate adoptions/spends, invalid selections/dates, malformed goals, and unknown schema versions. Collection data travels in the existing JSON backup. Service-worker cache v13 includes collection code and the atlas for offline use.
+
+## Artwork
+
+Pip's PNGs are Microsoft Fluent Emoji under MIT, with source links and license in `dist/art/`. Its cracks are code-drawn overlays. Minty's original ImageGen atlas has transparent background and a 5×2 grid: four egg frames, hatch, and five growth frames. CSS displays individual cells without additional image generation. The frame-map JSON and art brief remain available for future work.
+
+## Verification
+
+`npm test` includes the existing planner, personal to-do, and legacy companion tests plus collection tests for onboarding, banking, hatch costs, independent growth, undo/reclaim, migration, backup round-trips, post-exam care, level caps, and malformed data. The isolated app preview allows manual verification without changing saved progress.
+
+This update remains local until publishing is approved.
