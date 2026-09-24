@@ -75,3 +75,23 @@ test('malformed collection backups are rejected before restoration',()=>{
  const day='2026-09-22',s=journey(day);spendCare(s,day);
  for(const change of [c=>c.selected='unknown',c=>c.adopted.push('pip'),c=>c.spends.push({...c.spends[0]}),c=>c.spends[0].kind='money',c=>c.legacyDays=['bad-date'],c=>c.careDays[day]={goal:'x',done:true,claimed:true},c=>c.version=9]){const bad=structuredClone(s);change(bad.collection);assert.throws(()=>validateState(bad),/collection/);}
 });
+
+test('introduction dismissal survives saving, restoring and reward reconciliation',()=>{
+ const day='2026-09-21',s=journey(day);
+ // Saves from before this feature remain valid and eligible for introduction.
+ assert.equal(validateState(JSON.parse(JSON.stringify(s))).collection.introSeen,undefined);
+ s.collection.introSeen=true;
+ const restored=validateState(JSON.parse(JSON.stringify(s)));
+ syncCollection(restored,day);
+ assert.equal(restored.collection.introSeen,true);
+ const task=restored.tasks.find(t=>t.doneAt===day);
+ toggleTask(restored,task.id,day);syncCollection(restored,day);
+ assert.equal(collectionStatus(restored,day).unlocked,false);
+ toggleTask(restored,task.id,day);syncCollection(restored,day);finishDailyReward(restored,day);
+ assert.equal(collectionStatus(restored,day).unlocked,true);
+ assert.equal(restored.collection.introSeen,true);
+ for(const value of ['true',1,{},null]){
+  const invalid=structuredClone(s);invalid.collection.introSeen=value;
+  assert.throws(()=>validateState(invalid),/collection/);
+ }
+});

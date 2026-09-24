@@ -112,6 +112,7 @@ export function validateCollection(c,tasks,companion){
  const date=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&d>='2026-09-18'&&d<='2030-12-31'&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d;
  const unique=a=>Array.isArray(a)&&new Set(a).size===a.length;
  if(!companion||!c||c.version!==1||!unique(c.adopted)||c.adopted[0]!=='pip'||c.adopted.some(id=>!owns(SPECIES,id))||!c.adopted.includes(c.selected)||!Array.isArray(c.spends)||c.spends.length>1600||!unique(c.legacyDays)||c.legacyDays.length>1600||c.legacyDays.some(d=>!date(d)||!owns(companion.days,d))||!c.careDays||Array.isArray(c.careDays)||typeof c.careDays!=='object'||Object.keys(c.careDays).length>1600)fail();
+ if(c.introSeen!==undefined&&typeof c.introSeen!=='boolean')fail();
  const spent=new Set();
  for(const s of c.spends){if(!s||!date(s.day)||spent.has(s.day)||c.legacyDays.includes(s.day)||!c.adopted.includes(s.target)||!['warm','feed'].includes(s.kind))fail();spent.add(s.day);}
  for(const [day,e] of Object.entries(c.careDays)){if(!date(day)||day<=EXAM||!e||typeof e.goal!=='string'||!e.goal.trim()||e.goal.length>200||typeof e.done!=='boolean'||typeof e.claimed!=='boolean'||e.claimed&&!e.done)fail();}

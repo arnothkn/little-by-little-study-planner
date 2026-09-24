@@ -32,7 +32,13 @@ Synchronization checks claims against actual completed task IDs and dates, inclu
 
 Legacy growth uses the original baseline and the frozen set of old claimed dates. New study days cannot automatically grow Pip after migration. The old ledger's `fed` flag serves compatibility only; new feeding uses the explicit care ledger.
 
-Validation rejects unknown species, duplicate adoptions/spends, invalid selections/dates, malformed goals, and unknown schema versions. Collection data travels in the existing JSON backup. Service-worker cache v13 includes collection code and the atlas for offline use.
+Validation rejects unknown species, duplicate adoptions/spends, invalid selections/dates, malformed goals, and unknown schema versions. Collection data travels in the existing JSON backup. Service-worker cache v14 includes collection code, the introduction module/styles, and the atlas for offline use.
+
+## Companion introduction
+
+After Pip hatches, the main app shows the gold heart coin in a short glass dialog, then points to the newly unlocked Companions tab. The hatching reward remains spent on Pip; the message distinguishes it from banked rewards. Existing unlocked saves receive a one-time introduction showing their actual balance.
+
+Continuing, closing, or pressing Escape records `collection.introSeen` in the existing save and backups. Undo preserves that preference, including undoing/reclaiming the hatch. Old backups without the flag remain compatible. The introduction does not award or spend currency. Available eggs appear as selectable grey artwork tiles, with adopted eggs remaining grey until hatched.
 
 ## Artwork
 
