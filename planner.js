@@ -1,4 +1,5 @@
 import {validateTodos} from './todos.js';
+import {validateCollection} from './collection.js';
 export const START='2026-09-18', LEARN_END='2026-09-26', REV_START='2026-09-27', EXAM='2026-10-15', END='2026-10-14';
 export const TITLES={Eye:['History taking','Common eye disease','Common retinal disease','Conjunctivitis','Common orbital disease','AVL','Strabismus','Ocular pharmacology','Chronic visual loss','Common external eye disease','Medication','Eye pain','Neuro-ophthalmology','The irritated eye'],ENT:['Anatomy','External disease','Epistaxis','Common laryngeal problem','Deep neck infection','Common problem in ENT','Chronic rhinitis','Vertigo','Neck mass']};
 export const TOPICS=Object.entries(TITLES).flatMap(([subject,names])=>names.map((title,i)=>({id:`${subject.toLowerCase()}-${i+1}`,title,subject,number:i+1})));
@@ -108,6 +109,7 @@ export function validateState(raw){
  for(const [d,w] of Object.entries(raw.overrides))if(!validDate(d)||!(w in WEIGHTS))throw Error('The backup contains an invalid day.');
  for(const t of raw.tasks.filter(t=>t.doneAt&&t.stage>0)){const prev=prevTask(raw,t);if(!prev?.doneAt||t.doneAt<'2026-09-26'||diffDays(t.doneAt,prev.doneAt)<(t.stage===1?1:3))throw Error('The backup has reviews in the wrong order.');}
  validateCompanion(raw.companion,raw.tasks);
+ validateCollection(raw.collection,raw.tasks,raw.companion);
  const restored=structuredClone(raw);
  restored.todos=validateTodos(raw.todos);
  if(legacy){

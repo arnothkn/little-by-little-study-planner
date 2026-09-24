@@ -65,3 +65,20 @@ nav.has-highlight .nav-item.active{background:transparent;box-shadow:none}
 .nav-item{transition:color .2s ease}
 @media(max-width:600px){.nav-highlight{border-radius:9px}}
 @media(prefers-reduced-motion:reduce){nav.nav-ready .nav-highlight,.nav-item{transition:none}}
+
+/* A small companion home that shares the study app's existing surfaces. */
+.nav-item[hidden]{display:none}
+.demo-banner{border:1px dashed #d4bbc9;border-radius:12px;padding:13px 15px;margin-bottom:25px;color:#79616f;font-size:11px;background:#fff8fc}.demo-banner>span{display:block;margin-bottom:9px}.demo-banner>div{display:flex;gap:8px 14px;flex-wrap:wrap}.demo-banner a{padding:5px 0;text-underline-offset:3px}
+.atlas-frame{display:block;width:100%;aspect-ratio:1;background:url('./art/triceratops-sprite-sheet.png') var(--sprite-x) var(--sprite-y)/500% 200% no-repeat;pointer-events:none}
+.atlas-art .companion-bouncer{inset:6px 0;overflow:visible}
+.atlas-art .companion-halo{background:radial-gradient(circle,#ffe7bf77,transparent 72%)}
+.companion-caption{font-size:12px;color:#776573;text-align:center;margin:0 0 16px;line-height:1.6}
+.care-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+.care-actions .companion-caption{margin:0}.care-button{min-height:44px}.care-button span{font-weight:400;opacity:.8}
+.home-hero{padding:20px 24px 26px}.home-hero h2{font-family:Georgia,serif;font-size:27px;font-weight:400;margin:5px 0 8px}.home-hero .companion-art{width:224px;height:236px}.home-hero .companion-caption{margin-bottom:12px}
+.pet-progress{height:5px;width:160px;background:#ebdce4;border-radius:10px;overflow:hidden;margin:0 0 20px}.pet-progress span{display:block;height:100%;background:#df418d;border-radius:10px;transition:width .4s}
+.pet-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,220px));gap:15px}
+.pet-tile{display:flex;align-items:center;flex-direction:column;border:1px solid var(--line);border-radius:18px;background:white;padding:16px;box-shadow:inset 0 1px 0 white;min-height:200px}.pet-tile.selected{background:#fff4f9;border-color:#df79aa;box-shadow:0 0 0 1px #df79aa33}.pet-tile strong{font-size:15px}.pet-tile small{font-size:11px;color:var(--muted);margin:6px 0 12px}.pet-tile-icon{position:relative;width:90px;height:90px;margin:0 0 8px}.pet-tile-icon img{width:100%;height:100%;object-fit:contain}.pet-selected{font-size:11px;color:#a82865;padding:6px 12px;border-radius:20px;background:#fce7f3}.pet-tile:not(.selected) .pet-selected{background:#f3f1f2;color:var(--muted)}
+.egg-offer{margin-top:24px;display:flex;align-items:center;gap:24px}.egg-offer>div{flex:1}.egg-offer .button{flex-shrink:0;min-height:44px}.egg-offer h2{margin-top:10px}.egg-offer p{margin-bottom:0}
+.daily-care-panel{grid-column:1/-1}.daily-care-panel .section-title{margin-top:0}.daily-care-panel .task-card{margin-top:16px}
+@media(max-width:600px){nav.has-companions{grid-template-columns:repeat(5,minmax(0,1fr))}nav.has-companions .nav-item{font-size:9px;gap:5px}.care-actions{flex-direction:column;gap:10px}.home-hero .companion-art{width:192px;height:204px}.pet-roster{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pet-tile{padding:14px 10px}.egg-offer{align-items:stretch;flex-direction:column;gap:16px}.companion-caption{font-size:11px}}
