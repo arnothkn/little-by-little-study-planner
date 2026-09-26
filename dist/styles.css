@@ -1362,10 +1362,14 @@ dialog p {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+@property --day-progress {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%;
+}
 .finish-day-button {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1393,6 +1397,22 @@ dialog p {
 .finish-day-button:disabled {
   opacity: 1;
   cursor: not-allowed;
+}
+.finish-day-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 27px;
+  overflow: hidden;
+}
+.finish-day-edge {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border: 1px solid #e39abb;
+  border-radius: inherit;
+  box-shadow: 0 4px 0 #dd8db1;
+  clip-path: inset(0 calc(100% - var(--day-progress)) -5px 0);
+  pointer-events: none;
 }
 .finish-day-fill {
   position: absolute;
@@ -1472,6 +1492,10 @@ dialog p {
 }
 .finish-day-button.is-finished .finish-day-fill {
   background: linear-gradient(120deg, #fbe6ef, #f7cfe2);
+}
+.finish-day-button:not(:disabled) .finish-day-edge,
+.finish-day-button.is-finished .finish-day-edge {
+  display: none;
 }
 .companion-card {
   position: relative;

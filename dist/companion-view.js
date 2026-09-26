@@ -34,7 +34,7 @@ export function companionCard(state, today) {
     : s.careMode
       ? 'Set and complete a daily goal'
       : 'No sessions due today';
-  return `<section class="companion-card" aria-label="Your study companion">${home ? petArt(home.selected) : companionArt(s)}<span class="sr-only" role="status">${status}</span><button class="finish-day-button ${s.finished ? 'is-finished' : ''}" data-reward-day="${today}" data-finish-day ${s.canFinish ? '' : 'disabled'} style="--day-progress:${s.dayProgress * 100}%" aria-label="${buttonLabel}. ${progressLabel}"><span class="finish-day-fill" aria-hidden="true"></span><svg class="finish-day-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 14.7 9.3 21.5 12 14.7 14.7 12 21.5 9.3 14.7 2.5 12 9.3 9.3Z"/><path d="M19 2v4M17 4h4"/></svg><span class="finish-day-label">${buttonLabel}</span><span class="finish-day-shine" aria-hidden="true"></span></button>${home ? (home.unlocked ? `<div class="care-actions"><button class="text-button" data-page="companions">${home.bank} care reward${home.bank === 1 ? '' : 's'} · Companions →</button>${careButton(home)}</div>` : `<p class="companion-caption">${home.selected.warmth} of 4 cosy days · Pip’s egg</p>`) : ''}</section>`;
+  return `<section class="companion-card" aria-label="Your study companion">${home ? petArt(home.selected) : companionArt(s)}<span class="sr-only" role="status">${status}</span><button class="finish-day-button ${s.finished ? 'is-finished' : ''}" data-reward-day="${today}" data-finish-day ${s.canFinish ? '' : 'disabled'} style="--day-progress:${s.dayProgress * 100}%" aria-label="${buttonLabel}. ${progressLabel}"><span class="finish-day-edge" aria-hidden="true"></span><span class="finish-day-track" aria-hidden="true"><span class="finish-day-fill"></span><span class="finish-day-shine"></span></span><svg class="finish-day-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 14.7 9.3 21.5 12 14.7 14.7 12 21.5 9.3 14.7 2.5 12 9.3 9.3Z"/><path d="M19 2v4M17 4h4"/></svg><span class="finish-day-label">${buttonLabel}</span></button>${home ? (home.unlocked ? `<div class="care-actions"><button class="text-button" data-page="companions">${home.bank} care reward${home.bank === 1 ? '' : 's'} · Companions →</button>${careButton(home)}</div>` : `<p class="companion-caption">${home.selected.warmth} of 4 cosy days · Pip’s egg</p>`) : ''}</section>`;
 }
 
 export function petArt(p) {
@@ -142,8 +142,12 @@ export function animateRewardFill(root, previous) {
     return;
   const target = parseFloat(button.style.getPropertyValue('--day-progress'));
   if (!Number.isFinite(target) || Math.abs(previous.progress - target) < 0.1) return;
-  fill.animate([{ width: `${previous.progress}%` }, { width: `${target}%` }], {
-    duration: 650,
-    easing: 'cubic-bezier(.22,1,.36,1)',
-  });
+  // Animate the shared property so the fill and its edge move together.
+  button.animate(
+    [{ '--day-progress': `${previous.progress}%` }, { '--day-progress': `${target}%` }],
+    {
+      duration: 650,
+      easing: 'cubic-bezier(.22,1,.36,1)',
+    },
+  );
 }
