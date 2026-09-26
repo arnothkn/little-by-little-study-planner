@@ -7,3 +7,4 @@ node_modules/
 *.log
 .vscode/
 HANDOFF.md
+.claude/worktrees/
