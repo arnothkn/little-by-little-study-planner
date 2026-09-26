@@ -1,6 +1,6 @@
 # Companions
 
-Run `npm start`. The real app is at http://localhost:4173/. For a working demo of the same UI with isolated, in-memory progress, open http://localhost:4173/?preview=companions#today. The preview banner links to onboarding, a new egg, a growing companion, and post-exam care. Refresh resets the demo. It never reads or writes the real plan or its undo history. The previous `companion-preview.html` address redirects here.
+Run `npm start`. The real app is at http://localhost:4173/. For a working demo of the same UI with isolated, in-memory progress, open http://localhost:4173/?preview=companions#today. The preview banner links to onboarding, a new egg, a growing companion, and post-exam care. Refresh resets the demo. It never reads or writes the real plan or its undo history.
 
 ## Rewards and onboarding
 

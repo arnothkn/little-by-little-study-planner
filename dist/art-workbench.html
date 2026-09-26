@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Art workbench · Little by little</title>
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./companion-intro.css">
+<style>
+.wb{--wb-card:radial-gradient(ellipse at 50% 70%,#ffebd6aa,transparent 48%),linear-gradient(115deg,#fff4ed,#fff6fa 65%,#fcecf5);--wb-bg:var(--wb-card);--s:192px;background:var(--paper);min-height:100vh;padding-bottom:80px}
+.wb[data-bg=white]{--wb-bg:#fff}
+.wb[data-bg=dark]{--wb-bg:#1f1d22}
+.wb[data-bg=checker]{--wb-bg:repeating-conic-gradient(#e6e4e8 0 25%,#fff 0 50%) 0 0/16px 16px}
+.wb-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.wb-head{padding-top:36px}
+.wb-head h1{margin:8px 0 10px}
+.wb-head p{color:var(--muted);max-width:700px;line-height:1.55;margin:0;font-size:15px}
+.wb code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:#edecea;border-radius:5px;padding:1px 5px;color:var(--ink)}
+.wb-jump{display:flex;flex-wrap:wrap;gap:6px 18px;margin:18px 0 0;font-size:13px}
+.wb-jump a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+.wb-jump a:hover{color:var(--green);border-color:currentColor}
+.wb-toolbar{position:sticky;top:0;z-index:20;margin-top:22px;background:#f7f7f6e8;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-block:1px solid var(--line)}
+.wb-toolbar .wb-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;padding-block:10px}
+.wb-seg{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.wb-seg-buttons{display:flex;background:#eae9e7;border-radius:10px;padding:2px}
+.wb-seg button{border:0;background:none;font:inherit;font-size:12.5px;color:var(--ink);padding:6px 10px;border-radius:8px;cursor:pointer;min-height:30px}
+.wb-seg button[aria-pressed=true]{background:#fff;box-shadow:0 1px 2px #0000001f;font-weight:650}
+.wb-seg button:focus-visible,.wb-toggle input:focus-visible,.wb-drop:focus-within{outline:2px solid var(--green);outline-offset:2px}
+.wb-toggle{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer}
+.wb-toggle input{accent-color:var(--green);width:16px;height:16px;margin:0}
+.wb section{padding-top:44px;scroll-margin-top:64px}
+.wb h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:30px;letter-spacing:-.7px;margin:0 0 6px}
+.wb h3{font-size:14px;margin:0 0 4px}
+.wb-lede{color:var(--muted);margin:0 0 18px;font-size:14px;line-height:1.55;max-width:760px}
+.wb-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:var(--muted);margin:10px 0 0}
+.wb-legend i{display:inline-block;width:18px;vertical-align:middle;margin-right:6px}
+.wb-legend .l-solid{height:10px;border:1px dashed #db2777}
+.wb-legend .l-soft{height:10px;border:1px dotted #8b8b93}
+.wb-legend .l-feet{border-top:2px solid #2563eb}
+
+/* Lifecycle strip */
+.wb-strip{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:#fff}
+.wb-grid{display:grid;grid-template-columns:96px repeat(10,max-content);min-width:max-content}
+.wb-corner,.wb-rowhead{position:sticky;left:0;z-index:3;background:#fff;border-right:1px solid var(--line)}
+.wb-rowhead{display:flex;flex-direction:column;justify-content:center;padding:0 14px;border-top:1px solid var(--line)}
+.wb-rowhead b{font-size:14px}.wb-rowhead small{color:var(--muted);font-size:11px;margin-top:2px}
+.wb-colhead{padding:14px 10px 8px;font-size:12px;line-height:1.35}
+.wb-colhead b{display:block;font-size:13px}.wb-colhead span{color:var(--muted)}
+.wb-cell{padding:8px 10px 12px;border-top:1px solid var(--line)}
+.wb-stage{position:relative;background:var(--wb-bg);border-radius:14px;display:grid;place-items:center;padding:6px}
+.wb-cap{font:11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-top:7px;max-width:calc(var(--s) + 12px);overflow-wrap:anywhere}
+.wb-sized .companion-art{width:var(--s);height:calc(var(--s) + 12px)}
+.wb-sized .egg-cracks{height:var(--s)}
+.wb-sized .companion-ground{width:calc(var(--s) * .51);left:calc(var(--s) * .245);bottom:calc(var(--s) * .0625)}
+
+/* Guides, drawn from measured pixels */
+.wb-guides{position:absolute;inset:0;pointer-events:none}
+.wb:not(.show-guides) .wb-guides,.wb:not(.show-guides) .wb-bounds{display:none}
+.wb-guides div,.wb-bounds div{position:absolute;box-sizing:border-box}
+.g-solid{border:1px dashed #db2777}
+.g-soft{border:1px dotted #8b8b93}
+.g-feet{border-top:2px solid #2563eb}
+.g-frame{outline:1px solid #7c7c8633}
+
+/* In the app */
+.wb-controls{display:flex;align-items:center;gap:10px;margin:0 0 16px;font-size:13px}
+.wb-controls select{font:inherit;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:#fff}
+.wb-context{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:center;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px;margin-bottom:12px}
+.wb-context p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+.wb-context .wb-size{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-top:6px}
+.wb-pair{display:flex;flex-wrap:wrap;gap:12px}
+.wb-pair>.companion-card{flex:0 1 auto;min-width:0;position:relative}
+.wb-pair .pet-roster{flex:1;grid-template-columns:repeat(2,minmax(140px,200px))}
+.wb-pair .pet-tile{min-height:0;position:relative}
+
+/* Measurements */
+.wb-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+.wb-table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.wb-table th,.wb-table td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.wb-table th:first-child,.wb-table td:first-child{text-align:left}
+.wb-table thead th{font-size:11px;font-weight:650;color:var(--muted);letter-spacing:.3px}
+.wb-table .grp{text-align:center;color:var(--ink);font-size:12px;border-bottom:0;padding-bottom:0}
+.wb-table .sep{border-left:1px solid var(--line)}
+.wb-table tr:last-child td{border-bottom:0}
+.wb-table .flag{color:#b42318;font-weight:650}
+
+/* Sources and comparison */
+.wb-sources{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;margin-bottom:16px}
+.wb-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
+.wb-panel h3 small{font-weight:400;color:var(--muted);margin-left:6px}
+.wb-files{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.wb-file{margin:0}
+.wb-file .pic,.wb-sheet{position:relative;background:var(--wb-bg);border-radius:12px;overflow:hidden}
+.wb-file img,.wb-sheet img{display:block;width:100%;height:auto}
+.wb-file figcaption{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-top:6px}
+.wb-sheet{margin-top:10px}
+.wb-cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr)}
+.wb-cells>div{position:relative;border-right:1px dashed #db277755;border-bottom:1px dashed #db277755}
+.wb-cells>div:nth-child(5n){border-right:0}.wb-cells>div:nth-child(n+6){border-bottom:0}
+.wb-cells span{position:absolute;left:4px;top:3px;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#6b6b70;background:#ffffffd9;border-radius:4px;padding:0 3px}
+.wb-bounds{position:absolute;inset:0;pointer-events:none}
+.wb-compare{width:100%;border-collapse:collapse;font-size:13px;line-height:1.5}
+.wb-compare th,.wb-compare td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+.wb-compare thead th{font-size:11px;letter-spacing:.3px;color:var(--muted);font-weight:650}
+.wb-compare tbody th{font-weight:650;width:150px}
+.wb-compare tr:last-child>*{border-bottom:0}
+
+/* Differences and directions */
+.wb-issues{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;counter-reset:issue}
+.wb-issue{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-size:13px;line-height:1.55}
+.wb-issue h3{display:flex;gap:8px;align-items:baseline}
+.wb-issue h3::before{counter-increment:issue;content:counter(issue);font:600 11px ui-monospace,Menlo,monospace;color:var(--green)}
+.wb-issue p{margin:0;color:var(--muted)}
+.wb-issue .fact{margin-top:6px;color:var(--ink)}
+.wb-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.wb-option{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-size:13px;line-height:1.55}
+.wb-option.pick{border-color:#f0b8d0;box-shadow:0 0 0 3px #fce7f0}
+.wb-option .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--green);margin-bottom:4px}
+.wb-option ul{margin:8px 0 0;padding-left:18px;color:var(--muted)}
+.wb-option li{margin:2px 0}
+.wb-questions{margin:14px 0 0;padding-left:20px;font-size:13.5px;line-height:1.7}
+
+/* Try new art */
+.wb-drops{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.wb-drop{position:relative;border:1.5px dashed #d9c7cf;border-radius:16px;background:#fff;padding:18px;font-size:13px;line-height:1.5}
+.wb-drop.over{border-color:var(--green);background:#fff5f9}
+.wb-drop p{margin:4px 0 12px;color:var(--muted)}
+.wb-drop .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.wb-drop label.btn,.wb-drop button{font:inherit;font-size:12.5px;font-weight:650;border-radius:10px;padding:8px 12px;cursor:pointer;border:1px solid #f0c9d9;background:#fff;color:var(--green)}
+.wb-drop input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+.wb-drop .status{font:11.5px ui-monospace,Menlo,monospace;color:var(--muted)}
+.wb-drop .status.on{color:var(--green)}
+
+@media(max-width:760px){
+  .wb-wrap{padding:0 16px}
+  .wb-toolbar{position:static}
+  .wb section{scroll-margin-top:0}
+  .wb-sources{grid-template-columns:1fr}
+  .wb-context{grid-template-columns:1fr}
+  .wb-compare tbody th{width:auto}
+}
+</style></head>
+<body class="wb show-guides" data-bg="card">
+<header class="wb-wrap wb-head">
+  <div class="eyebrow">LOCAL TOOL · NOT PART OF THE APP</div>
+  <h1>Art workbench</h1>
+  <p>Pip and Minty, drawn by the app’s own renderer (<code>petArt()</code> in <code>companion-view.js</code>, plus <code>styles.css</code>). Change files in <code>art/</code>, then refresh. This page never reads or changes your saved plan.</p>
+  <div class="wb-jump" role="navigation" aria-label="Sections">
+    <a href="#lifecycle">Lifecycle</a><a href="#built">How they’re built</a><a href="#in-app">In the app</a><a href="#measure">Measurements</a><a href="#differ">What doesn’t match</a><a href="#directions">Directions</a><a href="#try">Try new art</a>
+  </div>
+</header>
+
+<div class="wb-toolbar"><div class="wb-wrap" role="toolbar" aria-label="Display options">
+  <div class="wb-seg" data-control="bg"><span id="bg-label">Background</span><div class="wb-seg-buttons" role="group" aria-labelledby="bg-label">
+    <button data-value="card">Card</button><button data-value="white">White</button><button data-value="dark">Dark</button><button data-value="checker">Checker</button>
+  </div></div>
+  <div class="wb-seg" data-control="size"><span id="size-label">Lifecycle size</span><div class="wb-seg-buttons" role="group" aria-labelledby="size-label">
+    <button data-value="96">96</button><button data-value="170">170</button><button data-value="192">192</button><button data-value="224">224</button><button data-value="320">320</button>
+  </div></div>
+  <label class="wb-toggle"><input type="checkbox" id="guides" checked> Guides</label>
+</div></div>
+
+<main class="wb-wrap">
+  <section id="lifecycle">
+    <h2>Lifecycle</h2>
+    <p class="wb-lede">Every stage, same progress data, both companions. The 192 size is the desktop Today card, and 170 is the phone Today card. Tap the art to bounce it. Dark and Checker backgrounds show edge fringes.</p>
+    <div class="wb-strip"><div class="wb-grid wb-sized" id="strip"></div></div>
+    <div class="wb-legend"><span><i class="l-solid"></i>Solid pixels (alpha ≥ 200)</span><span><i class="l-soft"></i>Everything visible, incl. soft shadow</span><span><i class="l-feet"></i>Lowest solid pixel</span></div>
+  </section>
+
+  <section id="built">
+    <h2>How they’re built</h2>
+    <p class="wb-lede">Two different pipelines. Pip combines three images, drawn cracks and CSS scaling. Minty uses one sprite sheet and changes position within it.</p>
+    <div class="wb-sources">
+      <div class="wb-panel"><h3>Pip <small>3 separate PNGs</small></h3><div class="wb-files" id="pip-files"></div></div>
+      <div class="wb-panel"><h3>Minty <small id="sheet-meta">sprite sheet</small></h3><div class="wb-sheet" id="minty-sheet"></div></div>
+    </div>
+    <div class="wb-panel" style="padding:4px 4px">
+      <table class="wb-compare">
+        <thead><tr><th></th><th>Pip</th><th>Minty</th></tr></thead>
+        <tbody>
+          <tr><th>Artwork</th><td>Microsoft Fluent Emoji 3D (MIT). Soft gradients, no outline.</td><td>Original generated art. 2D sticker style, thick plum outline, cel shading.</td></tr>
+          <tr><th>Files</th><td><code>egg.png</code>, <code>hatching.png</code>, <code>chick.png</code>, each 256 × 256</td><td><code>triceratops-sprite-sheet.png</code>, <span data-fill="sheet-dims">…</span>, 5 × 2 cells of <span data-fill="cell-dims">…</span></td></tr>
+          <tr><th>Egg stages</th><td>One egg image. <code>egg-cracks.js</code> draws thin SVG crack lines on top: 0, 2, 5, then 7 of its 9 strokes.</td><td>Four painted frames, <code>egg-0</code>–<code>egg-3</code>. Cracks, glow and the frill peeking out are drawn into the art.</td></tr>
+          <tr><th>Hatching</th><td><code>hatching.png</code>, scaled to 88%</td><td><code>hatch</code> frame, shown at full size</td></tr>
+          <tr><th>Growth</th><td>One <code>chick.png</code>, scaled by CSS from 62% to 100% (<code>--chick-scale</code>). Grows a little on every feed.</td><td>Five drawn frames, <code>level-1</code>–<code>level-5</code> (bigger, leaf, neckerchief). Changes only at a new level.</td></tr>
+          <tr><th>Ground shadow</th><td>CSS ellipse (<code>.companion-ground</code>) with fixed pixel positions</td><td>Painted into every frame. No CSS shadow.</td></tr>
+          <tr><th>Roster tile</th><td>Only <code>egg.png</code> or <code>chick.png</code>, never cracks or growth</td><td>Shows the current frame</td></tr>
+          <tr><th>Renderer</th><td><code>companionArt()</code>: an <code>&lt;img&gt;</code> plus an optional <code>&lt;svg&gt;</code></td><td><code>petArt()</code> with <code>.atlas-frame</code>: a CSS background with <code>background-position</code> in % steps. The sheet’s JSON frame map isn’t read by the app.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="in-app">
+    <h2>In the app</h2>
+    <p class="wb-lede">Where each companion appears, using the production classes as-is. Sizes follow this window’s width, so narrow the window below 600 px for the phone layout.</p>
+    <div class="wb-controls"><label for="stage-select">Stage</label><select id="stage-select"></select></div>
+    <div id="contexts"></div>
+  </section>
+
+  <section id="measure">
+    <h2>Measurements</h2>
+    <p class="wb-lede">Measured from the source pixels and mapped to the rendered size shown in the lifecycle strip (<span data-fill="size">192</span> px). <b>Feet</b> is the gap from the bottom of the art box to the lowest solid pixel. <b>Sharpness</b> is the source pixels available ÷ the pixels a 3× iPhone screen needs. Red marks a large mismatch between the two companions.</p>
+    <div class="wb-table-wrap" id="table"></div>
+  </section>
+
+  <section id="differ">
+    <h2>What doesn’t match</h2>
+    <p class="wb-lede">What the differences above mean in practice.</p>
+    <div class="wb-issues" id="issues"></div>
+  </section>
+
+  <section id="directions">
+    <h2>Directions</h2>
+    <p class="wb-lede">Three ways to make them belong together.</p>
+    <div class="wb-options">
+      <div class="wb-option pick"><span class="tag">ONE PIPELINE · SUGGESTED</span><h3>Redraw Pip as a 5 × 2 sheet in Minty’s style</h3>
+        <ul><li>Every companion becomes “a sheet with the same 10 frames”. Adding a third needs only art.</li><li><code>egg-cracks.js</code>, <code>--chick-scale</code> and the CSS shadow go away.</li><li>Needs 10 new Pip frames. The Microsoft licence is then no longer needed.</li><li>Existing saves keep working, because frames come from progress, not files.</li></ul></div>
+      <div class="wb-option"><span class="tag">SAME CODE, SAME LOOK</span><h3>Pack Pip’s Fluent art into a sheet</h3>
+        <ul><li>Unifies rendering: bake the cracks and growth sizes into 10 frames.</li><li>Pip still looks 3D next to a 2D Minty.</li><li>256 px sources stay soft on iPhone.</li></ul></div>
+      <div class="wb-option"><span class="tag">KEEP PIP</span><h3>Redraw Minty in the Fluent 3D style</h3>
+        <ul><li>Pip stays untouched.</li><li>Fluent has no triceratops, so it would have to be generated to match Microsoft’s style, which is hard to keep consistent.</li><li>Every future companion carries the same problem.</li></ul></div>
+    </div>
+    <h3 style="margin-top:22px">Decisions to make first</h3>
+    <ol class="wb-questions">
+      <li>Which style wins: 2D sticker (Minty) or 3D glossy (Pip)?</li>
+      <li>Ground shadow: painted into each frame, or one CSS shadow shared by every companion?</li>
+      <li>Growth feedback: a visible change on every feed, or only at a new level?</li>
+      <li>Where the feet sit and how tall each stage is: pick targets from the Measurements table so every sheet follows them.</li>
+    </ol>
+  </section>
+
+  <section id="try">
+    <h2>Try new art</h2>
+    <p class="wb-lede">Preview a replacement sheet in every view on this page before changing any files. Use the same 5 × 2 layout: <code>egg-0 egg-1 egg-2 egg-3 hatch</code> on top, <code>level-1</code>–<code>level-5</code> below. It’s a preview only: refresh to reset. To keep it, replace the file in <code>art/</code>.</p>
+    <div class="wb-drops">
+      <div class="wb-drop" data-drop="pip"><h3>Pip as a sheet</h3><p>Pip is drawn through the sprite-sheet path, like Minty.</p>
+        <div class="row"><label class="btn">Choose PNG…<input type="file" accept="image/png,image/webp"></label><button type="button" data-reset hidden>Reset</button><span class="status">or drop a file here</span></div></div>
+      <div class="wb-drop" data-drop="minty"><h3>Replace Minty’s sheet</h3><p>Try a regenerated or higher-resolution sheet.</p>
+        <div class="row"><label class="btn">Choose PNG…<input type="file" accept="image/png,image/webp"></label><button type="button" data-reset hidden>Reset</button><span class="status">or drop a file here</span></div></div>
+    </div>
+  </section>
+</main>
+<script type="module" src="./art-workbench.js"></script>
+</body></html>

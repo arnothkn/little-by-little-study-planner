@@ -1,0 +1,22 @@
+Generated using the built-in image-generation tool.
+
+Use case: stylized-concept.
+Asset type: transparent PNG game sprite atlas for a study companion called Pip, a cute yellow chick.
+Reference image: the supplied Minty triceratops atlas is a STYLE AND GRID REFERENCE ONLY. Create a NEW matching Pip atlas, not dinosaurs.
+Primary request: one wide sprite sheet, exactly 5 equal columns by 2 equal rows, aspect ratio 5:2, ten separate centered sprites, ideally 2500x1000. No labels or grid lines. All cells use the same square coordinate space, consistent ground baseline and generous transparent padding; nothing crosses cell boundaries.
+Style: match reference's charming polished 2D chibi mobile-game illustration, thick clean dark plum outlines, simple soft cel shading, glossy warm highlights, big shiny plum eyes, tiny blush cheeks, rounded proportions. No realistic rendering or photographic cracks.
+Pip identity: warm sunny yellow chick with tiny orange beak and feet, cream-yellow belly, tiny wings, a little head tuft. Retain this identity throughout. Egg is warm pale golden cream with a few subtle golden speckles; use the same shell design in every egg stage.
+Top row, left to right:
+1. Whole uncracked egg.
+2. Same egg with one small thin jagged dark line crack with subtle shadow.
+3. Same egg with a longer branching thin zigzag crack across its upper half.
+4. Shell opening at the top, Pip's tiny yellow face peeking out, small shell cap lifted slightly; mostly inside egg.
+5. Just hatched happy Pip sitting in the lower half-shell, a couple tiny shell fragments contained within its cell.
+Bottom row, left to right, five distinct growth stages of the same chick without shell:
+1. Tiny round baby chick seated, little tucked wings, single tuft, shy happy expression.
+2. Slightly taller chick standing on tiny orange feet, small two-feather tuft.
+3. Medium plump juvenile chick, slightly developed wings and tuft, cheerful expression.
+4. Larger chick with a small peach neckerchief, subtly longer wings and a tiny tail, still round and cute.
+5. Fully grown companion chick, largest but still adorable chibi yellow chick (not a rooster), confident happy pose, peach neckerchief and more developed wing/tail feathers.
+Growth sizes should increase gradually in the same fixed cell size; maintain generous padding on the largest stage. Match the reference's slight three-quarter front view and small soft plum oval contact shadow.
+Background: actual transparent alpha, not a drawn checkerboard, no colored or white background. Clean antialiased edges, no color halos. No text, numbers, watermark, scenery, food, decorative objects outside the sprites. Exactly ten cells in a strict regular 5x2 atlas.
