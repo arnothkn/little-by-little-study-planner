@@ -1,20 +1,7 @@
 import { companionStatus } from './companion.js';
-import { eggCracks } from './egg-cracks.js';
-import { collectionStatus, dailyRewardStatus } from './collection.js';
+import { collectionStatus, dailyRewardStatus, SPECIES } from './collection.js';
 export const careCoin =
   '<span class="care-coin" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 7C8-2-2 15 20 31 42 15 32-2 20 7Z"/></svg></span>';
-export function companionArt({ hatched = false, crack = 0, growth = 0, days = crack }) {
-  const newborn = hatched && growth === 0;
-  const label = !hatched
-    ? crack
-      ? `Pip’s egg after ${days} completed study day${days === 1 ? '' : 's'}. Tap to bounce.`
-      : 'Pip’s uncracked egg. Tap to bounce.'
-    : newborn
-      ? 'Pip, a newly hatched chick. Tap to bounce.'
-      : `Pip the chick, ${Math.round(growth * 100)}% grown. Tap to bounce.`;
-  const asset = !hatched ? 'egg' : newborn ? 'hatching' : 'chick';
-  return `<button type="button" class="companion-art ${hatched ? 'is-chick' : 'is-egg'}" data-bounce aria-label="${label}"><span class="companion-halo" aria-hidden="true"></span><span class="companion-ground" aria-hidden="true"></span><span class="companion-bouncer"><span class="companion-sprite" style="--chick-scale:${newborn ? 0.88 : 0.62 + growth * 0.38}"><img src="./art/${asset}.png" width="256" height="256" alt="" draggable="false">${!hatched ? eggCracks(crack) : ''}</span></span></button>`;
-}
 export function companionCard(state, today) {
   const s = state.collection ? dailyRewardStatus(state, today) : companionStatus(state, today);
   const home = state.collection ? collectionStatus(state, today) : null;
@@ -34,20 +21,29 @@ export function companionCard(state, today) {
     : s.careMode
       ? 'Set and complete a daily goal'
       : 'No sessions due today';
-  return `<section class="companion-card" aria-label="Your study companion">${home ? petArt(home.selected) : companionArt(s)}<span class="sr-only" role="status">${status}</span><button class="finish-day-button ${s.finished ? 'is-finished' : ''}" data-reward-day="${today}" data-finish-day ${s.canFinish ? '' : 'disabled'} style="--day-progress:${s.dayProgress * 100}%" aria-label="${buttonLabel}. ${progressLabel}"><span class="finish-day-edge" aria-hidden="true"></span><span class="finish-day-track" aria-hidden="true"><span class="finish-day-fill"></span><span class="finish-day-shine"></span></span><svg class="finish-day-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 14.7 9.3 21.5 12 14.7 14.7 12 21.5 9.3 14.7 2.5 12 9.3 9.3Z"/><path d="M19 2v4M17 4h4"/></svg><span class="finish-day-label">${buttonLabel}</span></button>${home ? (home.unlocked ? `<div class="care-actions"><button class="text-button" data-page="companions">${home.bank} care reward${home.bank === 1 ? '' : 's'} · Companions →</button>${careButton(home)}</div>` : `<p class="companion-caption">${home.selected.warmth} of 4 cosy days · Pip’s egg</p>`) : ''}</section>`;
+  return `<section class="companion-card" aria-label="Your study companion">${petArt(home ? home.selected : legacyPip(s))}<span class="sr-only" role="status">${status}</span><button class="finish-day-button ${s.finished ? 'is-finished' : ''}" data-reward-day="${today}" data-finish-day ${s.canFinish ? '' : 'disabled'} style="--day-progress:${s.dayProgress * 100}%" aria-label="${buttonLabel}. ${progressLabel}"><span class="finish-day-edge" aria-hidden="true"></span><span class="finish-day-track" aria-hidden="true"><span class="finish-day-fill"></span><span class="finish-day-shine"></span></span><svg class="finish-day-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 14.7 9.3 21.5 12 14.7 14.7 12 21.5 9.3 14.7 2.5 12 9.3 9.3Z"/><path d="M19 2v4M17 4h4"/></svg><span class="finish-day-label">${buttonLabel}</span></button>${home ? (home.unlocked ? `<div class="care-actions"><button class="text-button" data-page="companions">${home.bank} care reward${home.bank === 1 ? '' : 's'} · Companions →</button>${careButton(home)}</div>` : `<p class="companion-caption">${home.selected.warmth} of 4 cosy days · Pip’s egg</p>`) : ''}</section>`;
 }
 
-export function petArt(p) {
-  if (p.id === 'pip')
-    return companionArt({
-      hatched: p.hatched,
-      crack: Math.round((p.warmth / 4) * 9),
-      days: p.warmth,
-      growth: p.growth,
-    });
+// Pre-collection saves map onto Pip the same way replay() in collection.js does.
+function legacyPip({ hatched, crack, growth }) {
+  const xp = growth * 12;
+  return {
+    id: 'pip',
+    ...SPECIES.pip,
+    hatched,
+    warmth: hatched ? 4 : Math.min(4, crack),
+    xp,
+    level: Math.min(5, 1 + Math.floor((xp + 1e-8) / 3)),
+  };
+}
+// Every species has a 5×2 sheet: egg-0…egg-3 and hatch on top, level-1…level-5 below.
+export function atlasFrame(p) {
   const x = p.hatched ? (p.xp === 0 ? 4 : p.level - 1) : p.warmth,
     y = p.hatched && p.xp > 0 ? 1 : 0;
-  return `<button class="companion-art atlas-art" data-bounce aria-label="${p.name}${p.hatched ? '' : '’s egg'}. Tap to bounce."><span class="companion-halo" aria-hidden="true"></span><span class="companion-bouncer"><span class="atlas-frame" style="--sprite-x:${x * 25}%;--sprite-y:${y * 100}%" aria-hidden="true"></span></span></button>`;
+  return `<span class="atlas-frame atlas-${p.id}" style="--sprite-x:${x * 25}%;--sprite-y:${y * 100}%" aria-hidden="true"></span>`;
+}
+export function petArt(p) {
+  return `<button class="companion-art atlas-art" data-bounce aria-label="${p.name}${p.hatched ? '' : '’s egg'}. Tap to bounce."><span class="companion-halo" aria-hidden="true"></span><span class="companion-bouncer">${atlasFrame(p)}</span></button>`;
 }
 function careButton(home) {
   const p = home.selected;
@@ -64,7 +60,7 @@ export function companionsPage(state, today) {
       ? 'Fully grown'
       : `${Math.ceil(3 - (p.xp % 3))} feeds to level ${p.level + 1}`
     : `${p.warmth} of 4 rewards to hatch`;
-  return `<div class="page-heading"><div><div class="eyebrow">YOUR LITTLE COMPANION HOME</div><h1>Companions</h1><p>A little care goes a long way.</p></div><span class="phase-pill wallet-pill" aria-label="${h.bank} care rewards available"><span class="wallet-token">${careCoin}<strong>${h.bank}</strong><span>care</span></span></span></div><section class="companion-card home-hero" aria-label="Selected companion">${petArt(p)}<h2>${title}</h2><p class="companion-caption">${progress}</p><div class="pet-progress" role="progressbar" aria-label="${p.hatched ? 'Growth' : 'Hatching'} progress" aria-valuenow="${p.hatched ? Math.round(p.growth * 100) : p.warmth * 25}" aria-valuemin="0" aria-valuemax="100"><span style="width:${p.hatched ? p.growth * 100 : p.warmth * 25}%"></span></div>${careButton(h)}</section><div class="section-title"><h2>Your companions</h2></div><div class="pet-roster">${h.roster.map(pet => `<button class="pet-tile ${pet.hatched ? '' : 'unhatched'} ${pet.id === p.id ? 'selected' : ''}" data-choose-pet="${pet.id}" aria-pressed="${pet.id === p.id}"><span class="pet-tile-icon" aria-hidden="true">${pet.id === 'pip' ? `<img src="./art/${pet.hatched ? 'chick' : 'egg'}.png" alt="">` : `<span class="atlas-frame" style="--sprite-x:${pet.hatched ? (pet.xp === 0 ? 100 : (pet.level - 1) * 25) : pet.warmth * 25}%;--sprite-y:${pet.hatched && pet.xp > 0 ? '100' : '0'}%"></span>`}</span><strong>${pet.name}</strong><small>${pet.hatched ? `Level ${pet.level} · ${pet.species}` : `Egg · ${pet.warmth}/4`}</small><span class="pet-selected">${pet.id === p.id ? 'Selected' : 'Choose'}</span></button>`).join('')}${!state.collection.adopted.includes('minty') ? `<button class="pet-tile available-egg" data-adopt-egg="minty" aria-label="Choose Minty’s triceratops egg. Four care rewards to hatch."><span class="pet-tile-icon" aria-hidden="true"><span class="atlas-frame" style="--sprite-x:0%;--sprite-y:0%"></span></span><strong>Minty</strong><small>4 care to hatch</small><span class="pet-selected">Choose egg ＋</span></button>` : ''}</div>`;
+  return `<div class="page-heading"><div><div class="eyebrow">YOUR LITTLE COMPANION HOME</div><h1>Companions</h1><p>A little care goes a long way.</p></div><span class="phase-pill wallet-pill" aria-label="${h.bank} care rewards available"><span class="wallet-token">${careCoin}<strong>${h.bank}</strong><span>care</span></span></span></div><section class="companion-card home-hero" aria-label="Selected companion">${petArt(p)}<h2>${title}</h2><p class="companion-caption">${progress}</p><div class="pet-progress" role="progressbar" aria-label="${p.hatched ? 'Growth' : 'Hatching'} progress" aria-valuenow="${p.hatched ? Math.round(p.growth * 100) : p.warmth * 25}" aria-valuemin="0" aria-valuemax="100"><span style="width:${p.hatched ? p.growth * 100 : p.warmth * 25}%"></span></div>${careButton(h)}</section><div class="section-title"><h2>Your companions</h2></div><div class="pet-roster">${h.roster.map(pet => `<button class="pet-tile ${pet.hatched ? '' : 'unhatched'} ${pet.id === p.id ? 'selected' : ''}" data-choose-pet="${pet.id}" aria-pressed="${pet.id === p.id}"><span class="pet-tile-icon" aria-hidden="true">${atlasFrame(pet)}</span><strong>${pet.name}</strong><small>${pet.hatched ? `Level ${pet.level} · ${pet.species}` : `Egg · ${pet.warmth}/4`}</small><span class="pet-selected">${pet.id === p.id ? 'Selected' : 'Choose'}</span></button>`).join('')}${!state.collection.adopted.includes('minty') ? `<button class="pet-tile available-egg" data-adopt-egg="minty" aria-label="Choose Minty’s triceratops egg. Four care rewards to hatch."><span class="pet-tile-icon" aria-hidden="true">${atlasFrame({ id: 'minty', warmth: 0 })}</span><strong>Minty</strong><small>4 care to hatch</small><span class="pet-selected">Choose egg ＋</span></button>` : ''}</div>`;
 }
 
 export function bounceCompanion(button) {

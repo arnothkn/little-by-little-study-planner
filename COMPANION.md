@@ -32,7 +32,7 @@ Synchronization checks claims against actual completed task IDs and dates, inclu
 
 Legacy growth uses the original baseline and the frozen set of old claimed dates. New study days cannot automatically grow Pip after migration. The old ledger's `fed` flag serves compatibility only; new feeding uses the explicit care ledger.
 
-Validation rejects unknown species, duplicate adoptions/spends, invalid selections/dates, malformed goals, and unknown schema versions. Collection data travels in the existing JSON backup. Service-worker cache v14 includes collection code, the introduction module/styles, and the atlas for offline use.
+Validation rejects unknown species, duplicate adoptions/spends, invalid selections/dates, malformed goals, and unknown schema versions. Collection data travels in the existing JSON backup. Service-worker cache v15 includes collection code, the introduction module/styles, and the atlas for offline use.
 
 ## Companion introduction
 
@@ -42,7 +42,7 @@ Continuing, closing, or pressing Escape records `collection.introSeen` in the ex
 
 ## Artwork
 
-Pip's PNGs are Microsoft Fluent Emoji under MIT, with source links and license in `dist/art/`. Its cracks are code-drawn overlays. Minty's original ImageGen atlas has transparent background and a 5×2 grid: four egg frames, hatch, and five growth frames. CSS displays individual cells without additional image generation. The frame-map JSON and art brief remain available for future work.
+Each companion is one original ImageGen atlas with a transparent background and the same 5×2 grid: four egg frames, hatch, and five growth frames. `petArt()` picks the cell from progress, and an `atlas-<id>` class in `styles.css` picks the sheet, so a new species needs only its sheet and one CSS rule. Each sheet has a frame-map JSON beside it; the app does not read it. Pip's prompt is in `output/imagegen/`.
 
 ## Verification
 

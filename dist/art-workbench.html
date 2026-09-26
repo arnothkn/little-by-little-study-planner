@@ -259,14 +259,6 @@
         width: var(--s);
         height: calc(var(--s) + 12px);
       }
-      .wb-sized .egg-cracks {
-        height: var(--s);
-      }
-      .wb-sized .companion-ground {
-        width: calc(var(--s) * 0.51);
-        left: calc(var(--s) * 0.245);
-        bottom: calc(var(--s) * 0.0625);
-      }
 
       /* Guides, drawn from measured pixels */
       .wb-guides {
@@ -407,7 +399,7 @@
       /* Sources and comparison */
       .wb-sources {
         display: grid;
-        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
         margin-bottom: 16px;
       }
@@ -422,39 +414,17 @@
         color: var(--muted);
         margin-left: 6px;
       }
-      .wb-files {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin-top: 10px;
-      }
-      .wb-file {
-        margin: 0;
-      }
-      .wb-file .pic,
       .wb-sheet {
         position: relative;
         background: var(--wb-bg);
         border-radius: 12px;
         overflow: hidden;
+        margin-top: 10px;
       }
-      .wb-file img,
       .wb-sheet img {
         display: block;
         width: 100%;
         height: auto;
-      }
-      .wb-file figcaption {
-        font:
-          11px ui-monospace,
-          SFMono-Regular,
-          Menlo,
-          monospace;
-        color: var(--muted);
-        margin-top: 6px;
-      }
-      .wb-sheet {
-        margin-top: 10px;
       }
       .wb-cells {
         position: absolute;
@@ -520,7 +490,7 @@
         border-bottom: 0;
       }
 
-      /* Differences and directions */
+      /* Differences */
       .wb-issues {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -556,45 +526,6 @@
       .wb-issue .fact {
         margin-top: 6px;
         color: var(--ink);
-      }
-      .wb-options {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 12px;
-      }
-      .wb-option {
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 16px;
-        font-size: 13px;
-        line-height: 1.55;
-      }
-      .wb-option.pick {
-        border-color: #f0b8d0;
-        box-shadow: 0 0 0 3px #fce7f0;
-      }
-      .wb-option .tag {
-        display: inline-block;
-        font-size: 10.5px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        color: var(--green);
-        margin-bottom: 4px;
-      }
-      .wb-option ul {
-        margin: 8px 0 0;
-        padding-left: 18px;
-        color: var(--muted);
-      }
-      .wb-option li {
-        margin: 2px 0;
-      }
-      .wb-questions {
-        margin: 14px 0 0;
-        padding-left: 20px;
-        font-size: 13.5px;
-        line-height: 1.7;
       }
 
       /* Try new art */
@@ -689,8 +620,7 @@
       <div class="wb-jump" role="navigation" aria-label="Sections">
         <a href="#lifecycle">Lifecycle</a><a href="#built">How they’re built</a
         ><a href="#in-app">In the app</a><a href="#measure">Measurements</a
-        ><a href="#differ">What doesn’t match</a><a href="#directions">Directions</a
-        ><a href="#try">Try new art</a>
+        ><a href="#differ">What doesn’t match</a><a href="#try">Try new art</a>
       </div>
     </header>
 
@@ -734,16 +664,16 @@
       <section id="built">
         <h2>How they’re built</h2>
         <p class="wb-lede">
-          Two different pipelines. Pip combines three images, drawn cracks and CSS scaling. Minty
-          uses one sprite sheet and changes position within it.
+          One pipeline. Each companion is a 5 × 2 sprite sheet, and the app shows the cell that
+          matches its progress.
         </p>
         <div class="wb-sources">
           <div class="wb-panel">
-            <h3>Pip <small>3 separate PNGs</small></h3>
-            <div class="wb-files" id="pip-files"></div>
+            <h3>Pip <small id="pip-sheet-meta">sprite sheet</small></h3>
+            <div class="wb-sheet" id="pip-sheet"></div>
           </div>
           <div class="wb-panel">
-            <h3>Minty <small id="sheet-meta">sprite sheet</small></h3>
+            <h3>Minty <small id="minty-sheet-meta">sprite sheet</small></h3>
             <div class="wb-sheet" id="minty-sheet"></div>
           </div>
         </div>
@@ -759,25 +689,25 @@
             <tbody>
               <tr>
                 <th>Artwork</th>
-                <td>Microsoft Fluent Emoji 3D (MIT). Soft gradients, no outline.</td>
-                <td>Original generated art. 2D sticker style, thick plum outline, cel shading.</td>
+                <td colspan="2">
+                  Original generated art. 2D sticker style, thick plum outline, cel shading.
+                </td>
               </tr>
               <tr>
                 <th>Files</th>
                 <td>
-                  <code>egg.png</code>, <code>hatching.png</code>, <code>chick.png</code>, each 256
-                  × 256
+                  <code>pip-sprite-sheet.png</code>, <span data-fill="pip-sheet-dims">…</span>
                 </td>
                 <td>
-                  <code>triceratops-sprite-sheet.png</code>, <span data-fill="sheet-dims">…</span>,
-                  5 × 2 cells of <span data-fill="cell-dims">…</span>
+                  <code>triceratops-sprite-sheet.png</code>,
+                  <span data-fill="minty-sheet-dims">…</span>
                 </td>
               </tr>
               <tr>
                 <th>Egg stages</th>
                 <td>
-                  One egg image. <code>egg-cracks.js</code> draws thin SVG crack lines on top: 0, 2,
-                  5, then 7 of its 9 strokes.
+                  Four painted frames, <code>egg-0</code>–<code>egg-3</code>. Cracks and the chick
+                  peeking out are drawn into the art.
                 </td>
                 <td>
                   Four painted frames, <code>egg-0</code>–<code>egg-3</code>. Cracks, glow and the
@@ -786,14 +716,13 @@
               </tr>
               <tr>
                 <th>Hatching</th>
-                <td><code>hatching.png</code>, scaled to 88%</td>
-                <td><code>hatch</code> frame, shown at full size</td>
+                <td colspan="2"><code>hatch</code> frame, shown at full size</td>
               </tr>
               <tr>
                 <th>Growth</th>
                 <td>
-                  One <code>chick.png</code>, scaled by CSS from 62% to 100%
-                  (<code>--chick-scale</code>). Grows a little on every feed.
+                  Five drawn frames, <code>level-1</code>–<code>level-5</code> (bigger, tuft,
+                  neckerchief). Changes only at a new level.
                 </td>
                 <td>
                   Five drawn frames, <code>level-1</code>–<code>level-5</code> (bigger, leaf,
@@ -802,24 +731,19 @@
               </tr>
               <tr>
                 <th>Ground shadow</th>
-                <td>CSS ellipse (<code>.companion-ground</code>) with fixed pixel positions</td>
-                <td>Painted into every frame. No CSS shadow.</td>
+                <td colspan="2">Painted into every frame. No CSS shadow.</td>
               </tr>
               <tr>
                 <th>Roster tile</th>
-                <td>Only <code>egg.png</code> or <code>chick.png</code>, never cracks or growth</td>
-                <td>Shows the current frame</td>
+                <td colspan="2">Shows the current frame</td>
               </tr>
               <tr>
                 <th>Renderer</th>
-                <td>
-                  <code>companionArt()</code>: an <code>&lt;img&gt;</code> plus an optional
-                  <code>&lt;svg&gt;</code>
-                </td>
-                <td>
+                <td colspan="2">
                   <code>petArt()</code> with <code>.atlas-frame</code>: a CSS background with
-                  <code>background-position</code> in % steps. The sheet’s JSON frame map isn’t read
-                  by the app.
+                  <code>background-position</code> in % steps. <code>.atlas-pip</code> and
+                  <code>.atlas-minty</code> in <code>styles.css</code> pick the sheet. The JSON
+                  frame maps aren’t read by the app.
                 </td>
               </tr>
             </tbody>
@@ -858,61 +782,6 @@
         <div class="wb-issues" id="issues"></div>
       </section>
 
-      <section id="directions">
-        <h2>Directions</h2>
-        <p class="wb-lede">Three ways to make them belong together.</p>
-        <div class="wb-options">
-          <div class="wb-option pick">
-            <span class="tag">ONE PIPELINE · SUGGESTED</span>
-            <h3>Redraw Pip as a 5 × 2 sheet in Minty’s style</h3>
-            <ul>
-              <li>
-                Every companion becomes “a sheet with the same 10 frames”. Adding a third needs only
-                art.
-              </li>
-              <li>
-                <code>egg-cracks.js</code>, <code>--chick-scale</code> and the CSS shadow go away.
-              </li>
-              <li>Needs 10 new Pip frames. The Microsoft licence is then no longer needed.</li>
-              <li>Existing saves keep working, because frames come from progress, not files.</li>
-            </ul>
-          </div>
-          <div class="wb-option">
-            <span class="tag">SAME CODE, SAME LOOK</span>
-            <h3>Pack Pip’s Fluent art into a sheet</h3>
-            <ul>
-              <li>Unifies rendering: bake the cracks and growth sizes into 10 frames.</li>
-              <li>Pip still looks 3D next to a 2D Minty.</li>
-              <li>256 px sources stay soft on iPhone.</li>
-            </ul>
-          </div>
-          <div class="wb-option">
-            <span class="tag">KEEP PIP</span>
-            <h3>Redraw Minty in the Fluent 3D style</h3>
-            <ul>
-              <li>Pip stays untouched.</li>
-              <li>
-                Fluent has no triceratops, so it would have to be generated to match Microsoft’s
-                style, which is hard to keep consistent.
-              </li>
-              <li>Every future companion carries the same problem.</li>
-            </ul>
-          </div>
-        </div>
-        <h3 style="margin-top: 22px">Decisions to make first</h3>
-        <ol class="wb-questions">
-          <li>Which style wins: 2D sticker (Minty) or 3D glossy (Pip)?</li>
-          <li>
-            Ground shadow: painted into each frame, or one CSS shadow shared by every companion?
-          </li>
-          <li>Growth feedback: a visible change on every feed, or only at a new level?</li>
-          <li>
-            Where the feet sit and how tall each stage is: pick targets from the Measurements table
-            so every sheet follows them.
-          </li>
-        </ol>
-      </section>
-
       <section id="try">
         <h2>Try new art</h2>
         <p class="wb-lede">
@@ -923,8 +792,8 @@
         </p>
         <div class="wb-drops">
           <div class="wb-drop" data-drop="pip">
-            <h3>Pip as a sheet</h3>
-            <p>Pip is drawn through the sprite-sheet path, like Minty.</p>
+            <h3>Replace Pip’s sheet</h3>
+            <p>Try a regenerated or higher-resolution sheet.</p>
             <div class="row">
               <label class="btn"
                 >Choose PNG…<input type="file" accept="image/png,image/webp" /></label

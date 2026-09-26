@@ -1,11 +1,10 @@
 // Art workbench: draws Pip and Minty through the production renderer and
 // measures their source pixels. Local tool only: it is not in sw.js and never
 // reads or writes saved progress.
-import { petArt, bounceCompanion } from './companion-view.js';
+import { petArt, atlasFrame, bounceCompanion } from './companion-view.js';
 
-const SHEET = './art/triceratops-sprite-sheet.png';
-const FRAME_MAP = './art/triceratops-sprite-sheet.json';
-const PIP_FILES = ['egg', 'hatching', 'chick'];
+const SHEETS = { pip: './art/pip-sprite-sheet.png', minty: './art/triceratops-sprite-sheet.png' };
+const FRAME_MAP = './art/triceratops-sprite-sheet.json'; // Every sheet shares this layout.
 const PREFS_KEY = 'art-workbench.view';
 const STAGES = [
   { key: 'egg-0', title: 'Egg', rule: '0 of 4 rewards', warmth: 0, xp: 0 },
@@ -27,7 +26,6 @@ const overrides = { pip: null, minty: null };
 const metrics = { pip: {}, minty: {} };
 let frameNames = {};
 let size = 192;
-let heroShadow = null;
 let renderId = 0;
 
 // Same derivation as replay() in collection.js.
@@ -45,20 +43,14 @@ function pet(id, stage) {
   };
 }
 
-// A preview sheet sends Pip down the sprite-sheet path, like Minty.
 function art(id, stage) {
-  const p = pet(id, stage);
-  return petArt(id === 'pip' && overrides.pip ? { ...p, id: 'pip-sheet' } : p);
+  return petArt(pet(id, stage));
 }
 
 // Mirrors the roster tile markup in companionsPage() (companion-view.js).
 function tile(id, stage) {
   const p = pet(id, stage);
-  const icon =
-    id === 'pip' && !overrides.pip
-      ? `<img src="./art/${p.hatched ? 'chick' : 'egg'}.png" alt="">`
-      : `<span class="atlas-frame" style="--sprite-x:${p.hatched ? (p.xp === 0 ? 100 : (p.level - 1) * 25) : p.warmth * 25}%;--sprite-y:${p.hatched && p.xp > 0 ? 100 : 0}%"></span>`;
-  return `<div class="pet-tile ${p.hatched ? '' : 'unhatched'}" data-pet="${id}"><span class="pet-tile-icon" aria-hidden="true">${icon}</span><strong>${p.name}</strong><small>${p.hatched ? `Level ${p.level} · ${p.species}` : `Egg · ${p.warmth}/4`}</small></div>`;
+  return `<div class="pet-tile ${p.hatched ? '' : 'unhatched'}" data-pet="${id}"><span class="pet-tile-icon" aria-hidden="true">${atlasFrame(p)}</span><strong>${p.name}</strong><small>${p.hatched ? `Level ${p.level} · ${p.species}` : `Egg · ${p.warmth}/4`}</small></div>`;
 }
 
 function applyOverrides(root) {
@@ -142,32 +134,12 @@ function bounds(src, col = 0, row = 0, cols = 1, rows = 1) {
 // Which source pixels a rendered companion uses, read back from the DOM so the
 // captions always describe what companion-view.js actually produced.
 function source(host) {
-  const img = host.querySelector('.companion-sprite img');
-  if (img) {
-    const scale = host.querySelector('.companion-art').classList.contains('is-chick')
-      ? Number(host.querySelector('.companion-sprite').style.getPropertyValue('--chick-scale'))
-      : 1;
-    const cracks = host.querySelectorAll('.egg-cracks path').length / 2;
-    const file = img.getAttribute('src').split('/').pop();
-    return {
-      src: img.src,
-      col: 0,
-      row: 0,
-      cols: 1,
-      rows: 1,
-      el: img,
-      label:
-        file +
-        (cracks ? ` + ${cracks}/9 cracks` : '') +
-        (scale !== 1 ? ` × ${scale.toFixed(2)}` : ''),
-    };
-  }
   const frame = host.querySelector('.atlas-frame');
   const col = Math.round(parseFloat(frame.style.getPropertyValue('--sprite-x')) / 25);
   const row = Math.round(parseFloat(frame.style.getPropertyValue('--sprite-y')) / 100);
   const override = overrides[host.dataset.pet];
   return {
-    src: new URL(override?.url || SHEET, location.href).href,
+    src: new URL(override?.url || SHEETS[host.dataset.pet], location.href).href,
     col,
     row,
     cols: 5,
@@ -177,8 +149,7 @@ function source(host) {
   };
 }
 
-// The drawn square inside an element. The <img> uses object-fit: contain, and
-// .atlas-frame is already square. The rect includes the CSS growth scale.
+// The drawn square inside a frame. .atlas-frame is already square.
 function drawnSquare(el) {
   const r = el.getBoundingClientRect(),
     side = Math.min(r.width, r.height);
@@ -235,8 +206,7 @@ function drawGuides(host, m) {
 // ---- Views --------------------------------------------------------------
 
 function renderStrip() {
-  const kind = id =>
-    overrides[id] ? 'preview sheet' : id === 'pip' ? '3 PNGs + code' : 'sprite sheet';
+  const kind = id => (overrides[id] ? 'preview sheet' : 'sprite sheet');
   strip.innerHTML =
     `<div class="wb-corner"></div>` +
     STAGES.map(s => `<div class="wb-colhead"><b>${s.title}</b><span>${s.rule}</span></div>`).join(
@@ -303,16 +273,7 @@ function renderContexts() {
   ).join('');
 }
 
-function shadowOffset(host) {
-  const ground = host?.querySelector('.companion-ground');
-  if (!ground) return null;
-  const g = ground.getBoundingClientRect(),
-    a = host.querySelector('.companion-art').getBoundingClientRect();
-  return g.left + g.width / 2 - (a.left + a.width / 2);
-}
-
 function annotateContexts() {
-  heroShadow = null;
   for (const el of contexts.querySelectorAll('[data-context]')) {
     const out = el.querySelector('.wb-size');
     if (el.dataset.context === 'tile') {
@@ -321,14 +282,7 @@ function annotateContexts() {
       continue;
     }
     const a = el.querySelector('.companion-art').getBoundingClientRect();
-    const off = shadowOffset(el.querySelector('[data-pet="pip"]'));
-    const shifted = off !== null && Math.abs(off) > 1.5;
-    out.textContent =
-      `Art box ${Math.round(a.width)} × ${Math.round(a.height)} px at this width` +
-      (shifted
-        ? ` · Pip’s shadow is ${Math.round(Math.abs(off))} px ${off < 0 ? 'left' : 'right'} of centre`
-        : '');
-    if (el.dataset.context === 'hero' && shifted) heroShadow = off;
+    out.textContent = `Art box ${Math.round(a.width)} × ${Math.round(a.height)} px at this width`;
   }
 }
 
@@ -356,8 +310,6 @@ function renderTable() {
 }
 
 async function renderSources(id) {
-  const pipPanel = document.getElementById('pip-files'),
-    sheetPanel = document.getElementById('minty-sheet');
   const sheetFigure = async src => {
     const all = await Promise.all(
       Array.from({ length: 10 }, (_, i) => bounds(src, i % 5, Math.floor(i / 5), 5, 2)),
@@ -383,41 +335,24 @@ async function renderSources(id) {
     };
   };
 
-  if (overrides.pip) {
-    const fig = await sheetFigure(overrides.pip.url);
-    if (id !== renderId) return;
-    pipPanel.innerHTML = `<figure class="wb-file" style="grid-column:1/-1"><div class="wb-sheet" style="margin:0">${fig.html}</div><figcaption>${overrides.pip.name} · ${fig.meta.width} × ${fig.meta.height} (preview)</figcaption></figure>`;
-  } else {
-    const all = await Promise.all(
-      PIP_FILES.map(name => bounds(new URL(`./art/${name}.png`, location.href).href)),
-    );
-    if (id !== renderId) return;
-    const pos = (n, cls) =>
-      n
-        ? `<div class="${cls}" style="left:${n.x0 * 100}%;top:${n.y0 * 100}%;width:${(n.x1 - n.x0) * 100}%;height:${(n.y1 - n.y0) * 100}%"></div>`
-        : '';
-    pipPanel.innerHTML = PIP_FILES.map(
-      (name, i) =>
-        `<figure class="wb-file"><div class="pic"><img src="./art/${name}.png" alt=""><div class="wb-bounds">${pos(all[i].soft, 'g-soft')}${pos(all[i].solid, 'g-solid')}</div></div><figcaption>${name}.png · ${all[i].width} × ${all[i].height}</figcaption></figure>`,
-    ).join('');
-  }
-
-  const fig = await sheetFigure(new URL(overrides.minty?.url || SHEET, location.href).href);
+  const figs = await Promise.all(
+    ['pip', 'minty'].map(pet =>
+      sheetFigure(new URL(overrides[pet]?.url || SHEETS[pet], location.href).href),
+    ),
+  );
   if (id !== renderId) return;
-  sheetPanel.innerHTML = fig.html;
-  const m = fig.meta,
-    dims = `${m.width} × ${m.height}`,
-    cell = `${+m.cellW.toFixed(1)} × ${+m.cellH.toFixed(1)}`;
-  document.getElementById('sheet-meta').textContent =
-    `${overrides.minty ? `${overrides.minty.name} (preview)` : 'one sprite sheet'} · ${dims} · cells ${cell}`;
-  if (!overrides.minty) {
-    document.querySelectorAll('[data-fill="sheet-dims"]').forEach(el => {
-      el.textContent = dims;
-    });
-    document.querySelectorAll('[data-fill="cell-dims"]').forEach(el => {
-      el.textContent = cell;
-    });
-  }
+  ['pip', 'minty'].forEach((pet, i) => {
+    const m = figs[i].meta,
+      dims = `${m.width} × ${m.height}`,
+      cell = `${+m.cellW.toFixed(1)} × ${+m.cellH.toFixed(1)}`;
+    document.getElementById(`${pet}-sheet`).innerHTML = figs[i].html;
+    document.getElementById(`${pet}-sheet-meta`).textContent =
+      `${overrides[pet] ? `${overrides[pet].name} (preview)` : 'sprite sheet'} · ${dims} · cells ${cell}`;
+    if (!overrides[pet])
+      document.querySelectorAll(`[data-fill="${pet}-sheet-dims"]`).forEach(el => {
+        el.textContent = `${dims}, cells ${cell}`;
+      });
+  });
 }
 
 // Notes that depend on measurements are only listed when the numbers support them.
@@ -426,29 +361,12 @@ async function renderIssues() {
   const pct = v => `${Math.round(Math.min(1, v) * 100)}%`;
   const pip = metrics.pip,
     minty = metrics.minty;
-  const sheet = await bounds(
-    new URL(overrides.minty?.url || SHEET, location.href).href,
-    0,
-    0,
-    5,
-    2,
+  const sheets = await Promise.all(
+    ['pip', 'minty'].map(pet =>
+      bounds(new URL(overrides[pet]?.url || SHEETS[pet], location.href).href, 0, 0, 5, 2),
+    ),
   );
-  const list = [
-    {
-      about: 'both',
-      title: 'Two art styles side by side',
-      text: 'Pip is glossy 3D with no outline. Minty is a flat sticker with a thick plum outline. In the roster they look like they come from different apps.',
-    },
-    {
-      about: 'pip',
-      title: 'Growth doesn’t feel the same',
-      text: 'Each feed makes Pip slightly bigger (3% of full size), which is easy to miss. Minty changes clearly, but only at a new level, so 2 of every 3 feeds show no change.',
-      fact:
-        pip['level-1'] &&
-        pip['level-2'] &&
-        `At ${size} px, Pip grows from ${px(pip['level-1'].height)} to ${px(pip['level-2'].height)} px tall between level 1 and level 2.`,
-    },
-  ];
+  const list = [];
   const shrinks = [
     ['Pip', pip],
     ['Minty', minty],
@@ -456,54 +374,42 @@ async function renderIssues() {
   if (shrinks.length)
     list.push({
       title: `${shrinks.length === 2 ? 'Both shrink' : `${shrinks[0][0]} shrinks`} on the first feed`,
-      text:
-        'The hatch picture is drawn larger than level 1, so the companion gets smaller the moment you first feed it.' +
-        (!overrides.pip && shrinks.some(([name]) => name === 'Pip')
-          ? ' Pip goes from hatching.png at 88% to chick.png at 65%.'
-          : '') +
-        (!overrides.minty && shrinks.some(([name]) => name === 'Minty')
-          ? ' Minty’s hatch frame has a bigger head than its level-1 frame.'
-          : ''),
+      text: 'The hatch picture is drawn larger than level 1, so the companion gets smaller the moment you first feed it.',
       fact: `At ${size} px: ${shrinks.map(([name, m]) => `${name} ${px(m.hatch.height)} → ${px(m['level-1'].height)} px tall`).join(', ')}.`,
+    });
+  // Feet are measured from the bottom of the art box, so a gap means one companion floats or sinks.
+  const drift = STAGES.filter(
+    s => pip[s.key] && minty[s.key] && Math.abs(pip[s.key].feet - minty[s.key].feet) > size * 0.06,
+  );
+  if (drift.length)
+    list.push({
+      title: 'Feet don’t line up',
+      text: 'The painted ground shadows sit at different heights in the two sheets, so switching companions moves the character up or down.',
+      fact: `At ${size} px: ${drift.map(s => `${s.key} Pip ${px(pip[s.key].feet)} vs Minty ${px(minty[s.key].feet)} px`).join(', ')}.`,
     });
   list.push({
     about: 'both',
-    title: 'The eggs don’t look related',
-    text: 'Pip’s egg is the tan Fluent egg with thin cracks drawn in code. Minty’s eggs are cream and mint, with cracks and a glow painted in and the frill peeking out at stage 3.',
+    title: 'Growth shows only at a new level',
+    text: 'Both sheets have five growth frames, so 2 of every 3 feeds show no visible change.',
   });
-  if (!overrides.pip && heroShadow !== null)
-    list.push({
-      title: 'Pip’s shadow is off-centre in Companions',
-      text: '.companion-ground uses fixed pixel positions tuned for the Today art. The Companions hero draws the art larger but keeps those positions.',
-      fact: `At this window width, the shadow sits ${px(Math.abs(heroShadow))} px ${heroShadow < 0 ? 'left' : 'right'} of Pip’s centre.`,
-    });
   // Full-grown frames are drawn at full size, so they show the worst case.
   const grown = [pip['level-5'], minty['level-5']];
   if (grown.every(Boolean) && grown.some(m => m.sharp < 0.9))
     list.push({
       title: 'Soft on iPhone',
       text: `A 3× screen needs three source pixels per CSS pixel: ${size * 3} px across for a ${size} px frame.`,
-      fact: `At ${size} px, Pip’s ${overrides.pip ? 'preview' : '256 px'} source gives ${pct(grown[0].sharp)} and Minty’s ${+sheet.cellW.toFixed(1)} px cells give ${pct(grown[1].sharp)}. 640 px cells stay sharp up to 213 px.`,
+      fact: `At ${size} px, Pip’s ${+sheets[0].cellW.toFixed(1)} px cells give ${pct(grown[0].sharp)} and Minty’s ${+sheets[1].cellW.toFixed(1)} px cells give ${pct(grown[1].sharp)}. 640 px cells stay sharp up to 213 px.`,
     });
-  list.push(
-    {
-      about: 'pip',
-      title: 'Pip’s roster tile ignores progress',
-      text: 'The tile always shows chick.png at full size, whatever the level. Minty’s tile shows its current frame.',
-    },
-    {
-      about: 'pip',
-      title: 'Size rules are hand-tuned',
-      text: 'The .egg-cracks height and .companion-ground position are set in pixels for each layout in styles.css, so every new size needs matching rules. The sprite sheet scales with its box.',
-    },
+  const uneven = sheets.find(
+    sheet => !Number.isInteger(sheet.cellW) || !Number.isInteger(sheet.cellH),
   );
-  if (!Number.isInteger(sheet.cellW) || !Number.isInteger(sheet.cellH))
+  if (uneven)
     list.push({
       title: 'Sheet cells aren’t whole pixels',
-      text: `${sheet.width} ÷ 5 = ${+sheet.cellW.toFixed(1)} and ${sheet.height} ÷ 2 = ${+sheet.cellH.toFixed(1)}. The app copes because it positions frames in percentages, but slicing tools will be a pixel off. Export future sheets with whole-number cells, such as 5 × 640 by 2 × 640.`,
+      text: `${uneven.width} ÷ 5 = ${+uneven.cellW.toFixed(1)} and ${uneven.height} ÷ 2 = ${+uneven.cellH.toFixed(1)}. The app copes because it positions frames in percentages, but slicing tools will be a pixel off. Export future sheets with whole-number cells, such as 5 × 640 by 2 × 640.`,
     });
   // Notes marked `about` describe the current files, so a preview hides them.
-  const current = i => !i.about || (!overrides.pip && (i.about === 'pip' || !overrides.minty));
+  const current = i => !i.about || !(overrides.pip || overrides.minty);
   const previewing = overrides.pip || overrides.minty;
   document.getElementById('issues').innerHTML =
     (previewing

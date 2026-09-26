@@ -1324,43 +1324,11 @@ dialog p {
   background: radial-gradient(circle, #ffe7bf88, transparent 72%);
   z-index: -1;
 }
-.companion-ground {
-  position: absolute;
-  width: 98px;
-  height: 11px;
-  left: 47px;
-  bottom: 12px;
-  border-radius: 50%;
-  background: #aa66491c;
-  filter: blur(4px);
-}
-.companion-bouncer,
-.companion-sprite {
+.companion-bouncer {
   display: block;
   position: absolute;
   inset: 0;
   transform-origin: 50% 90%;
-}
-.companion-sprite img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-}
-.is-chick .companion-sprite {
-  transform: scale(var(--chick-scale));
-}
-.egg-cracks {
-  position: absolute;
-  inset: 6px 0;
-  width: 100%;
-  height: 192px;
-  fill: none;
-  stroke: #783919;
-  stroke-width: 1.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 @property --day-progress {
   syntax: '<percentage>';
@@ -1600,14 +1568,6 @@ dialog p {
   .companion-art {
     width: 170px;
     height: 182px;
-  }
-  .egg-cracks {
-    height: 170px;
-  }
-  .companion-ground {
-    left: 40px;
-    width: 90px;
-    bottom: 10px;
   }
 }
 /* Personal extras share the daily list without contributing to study rewards. */
@@ -1938,9 +1898,14 @@ nav.has-highlight .nav-item.active {
   display: block;
   width: 100%;
   aspect-ratio: 1;
-  background: url('./art/triceratops-sprite-sheet.png') var(--sprite-x) var(--sprite-y) / 500% 200%
-    no-repeat;
+  background: var(--sprite-x) var(--sprite-y) / 500% 200% no-repeat;
   pointer-events: none;
+}
+.atlas-pip {
+  background-image: url('./art/pip-sprite-sheet.png');
+}
+.atlas-minty {
+  background-image: url('./art/triceratops-sprite-sheet.png');
 }
 .atlas-art .companion-bouncer {
   inset: 6px 0;
@@ -2039,11 +2004,6 @@ nav.has-highlight .nav-item.active {
   width: 90px;
   height: 90px;
   margin: 0 0 8px;
-}
-.pet-tile-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 .pet-selected {
   font-size: 11px;

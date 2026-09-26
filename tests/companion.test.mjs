@@ -16,7 +16,7 @@ import {
   companionStatus,
   finishCompanionDay,
 } from '../dist/companion.js';
-import { companionCard } from '../dist/companion-view.js';
+import { companionCard, petArt } from '../dist/companion-view.js';
 const start = '2026-09-18';
 function fresh() {
   const s = createState(start);
@@ -302,4 +302,29 @@ test('extra work after claiming reopens the same day so no completed work is str
   assert.equal(companionStatus(s, start).crack, 1);
   assert.equal(companionStatus(s, start).egg, earned + 1);
   assert.throws(() => finishCompanionDay(s, start));
+});
+test('each companion draws its own sprite sheet at the frame for its progress', () => {
+  const pet = (id, warmth, xp) => ({
+    id,
+    name: id,
+    warmth,
+    xp,
+    hatched: warmth === 4,
+    level: Math.min(5, 1 + Math.floor(xp / 3)),
+  });
+  const frame = html =>
+    html
+      .match(/atlas-frame atlas-(\w+)" style="--sprite-x:(\d+)%;--sprite-y:(\d+)%/)
+      .slice(1)
+      .join(' ');
+  for (const id of ['pip', 'minty']) {
+    assert.equal(frame(petArt(pet(id, 0, 0))), `${id} 0 0`);
+    assert.equal(frame(petArt(pet(id, 3, 0))), `${id} 75 0`);
+    assert.equal(frame(petArt(pet(id, 4, 0))), `${id} 100 0`);
+    assert.equal(frame(petArt(pet(id, 4, 1))), `${id} 0 100`);
+    assert.equal(frame(petArt(pet(id, 4, 12))), `${id} 100 100`);
+  }
+  const html = companionCard(fresh(), start);
+  assert.equal(frame(html), 'pip 0 0');
+  assert.doesNotMatch(html, /<img/);
 });
