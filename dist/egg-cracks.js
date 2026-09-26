@@ -34,11 +34,13 @@ export function eggCracks(stage) {
   if (count === 0) return '';
 
   const paths = CRACK_ADDITIONS.slice(0, count)
-    .map((d) => `<path d="${d}"/>`)
+    .map(d => `<path d="${d}"/>`)
     .join('');
 
-  return `<svg class="egg-cracks" viewBox="0 0 256 256" aria-hidden="true" focusable="false">` +
+  return (
+    `<svg class="egg-cracks" viewBox="0 0 256 256" aria-hidden="true" focusable="false">` +
     `<g fill="none" stroke="#f5d9b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(1 1)">${paths}</g>` +
     `<g fill="none" stroke="#68452f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths}</g>` +
-    `</svg>`;
+    `</svg>`
+  );
 }
