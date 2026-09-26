@@ -28,6 +28,7 @@ import {
 } from './planner.js';
 import { refreshCommitment } from './companion.js';
 import {
+  SPECIES,
   syncCollection,
   collectionStatus,
   chooseCompanion,
@@ -42,6 +43,7 @@ import {
   companionCard,
   bounceCompanion,
   celebrateCompanion,
+  startIdleBounce,
   captureRewardFill,
   animateRewardFill,
   companionsPage,
@@ -688,6 +690,7 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) checkDay();
 });
 setInterval(checkDay, 60000);
+startIdleBounce();
 window.addEventListener('storage', e => {
   if (!demo && e.key === KEY && e.newValue) {
     try {
@@ -780,7 +783,7 @@ document.addEventListener('click', e => {
   else if (b.dataset.adoptEgg)
     mutate(
       () => adoptEgg(state, b.dataset.adoptEgg, today),
-      'Minty’s egg has a home. Warm it with four care rewards.',
+      `${SPECIES[b.dataset.adoptEgg]?.name}’s egg has a home. Warm it with four care rewards.`,
     );
   else if (b.hasAttribute('data-spend-care')) {
     const before = collectionStatus(state, today).selected;

@@ -36,14 +36,14 @@ function legacyPip({ hatched, crack, growth }) {
     level: Math.min(5, 1 + Math.floor((xp + 1e-8) / 3)),
   };
 }
-// Every species has a 5×2 sheet: egg-0…egg-3 and hatch on top, level-1…level-5 below.
+// Picks this companion's cell from its sheet in SPECIES.
 export function atlasFrame(p) {
   const x = p.hatched ? (p.xp === 0 ? 4 : p.level - 1) : p.warmth,
     y = p.hatched && p.xp > 0 ? 1 : 0;
-  return `<span class="atlas-frame atlas-${p.id}" style="--sprite-x:${x * 25}%;--sprite-y:${y * 100}%" aria-hidden="true"></span>`;
+  return `<span class="atlas-frame" data-species="${p.id}" style="background-image:url('./art/${SPECIES[p.id].sheet}');--sprite-x:${x * 25}%;--sprite-y:${y * 100}%" aria-hidden="true"></span>`;
 }
 export function petArt(p) {
-  return `<button class="companion-art atlas-art" data-bounce aria-label="${p.name}${p.hatched ? '' : '’s egg'}. Tap to bounce."><span class="companion-halo" aria-hidden="true"></span><span class="companion-bouncer">${atlasFrame(p)}</span></button>`;
+  return `<button class="companion-art atlas-art${p.hatched ? '' : ' is-egg'}" data-bounce aria-label="${p.name}${p.hatched ? '' : '’s egg'}. Tap to bounce."><span class="companion-halo" aria-hidden="true"></span><span class="companion-bouncer">${atlasFrame(p)}</span></button>`;
 }
 function careButton(home) {
   const p = home.selected;
@@ -60,7 +60,15 @@ export function companionsPage(state, today) {
       ? 'Fully grown'
       : `${Math.ceil(3 - (p.xp % 3))} feeds to level ${p.level + 1}`
     : `${p.warmth} of 4 rewards to hatch`;
-  return `<div class="page-heading"><div><div class="eyebrow">YOUR LITTLE COMPANION HOME</div><h1>Companions</h1><p>A little care goes a long way.</p></div><span class="phase-pill wallet-pill" aria-label="${h.bank} care rewards available"><span class="wallet-token">${careCoin}<strong>${h.bank}</strong><span>care</span></span></span></div><section class="companion-card home-hero" aria-label="Selected companion">${petArt(p)}<h2>${title}</h2><p class="companion-caption">${progress}</p><div class="pet-progress" role="progressbar" aria-label="${p.hatched ? 'Growth' : 'Hatching'} progress" aria-valuenow="${p.hatched ? Math.round(p.growth * 100) : p.warmth * 25}" aria-valuemin="0" aria-valuemax="100"><span style="width:${p.hatched ? p.growth * 100 : p.warmth * 25}%"></span></div>${careButton(h)}</section><div class="section-title"><h2>Your companions</h2></div><div class="pet-roster">${h.roster.map(pet => `<button class="pet-tile ${pet.hatched ? '' : 'unhatched'} ${pet.id === p.id ? 'selected' : ''}" data-choose-pet="${pet.id}" aria-pressed="${pet.id === p.id}"><span class="pet-tile-icon" aria-hidden="true">${atlasFrame(pet)}</span><strong>${pet.name}</strong><small>${pet.hatched ? `Level ${pet.level} · ${pet.species}` : `Egg · ${pet.warmth}/4`}</small><span class="pet-selected">${pet.id === p.id ? 'Selected' : 'Choose'}</span></button>`).join('')}${!state.collection.adopted.includes('minty') ? `<button class="pet-tile available-egg" data-adopt-egg="minty" aria-label="Choose Minty’s triceratops egg. Four care rewards to hatch."><span class="pet-tile-icon" aria-hidden="true">${atlasFrame({ id: 'minty', warmth: 0 })}</span><strong>Minty</strong><small>4 care to hatch</small><span class="pet-selected">Choose egg ＋</span></button>` : ''}</div>`;
+  return `<div class="page-heading"><div><div class="eyebrow">YOUR LITTLE COMPANION HOME</div><h1>Companions</h1><p>A little care goes a long way.</p></div><span class="phase-pill wallet-pill" aria-label="${h.bank} care rewards available"><span class="wallet-token">${careCoin}<strong>${h.bank}</strong><span>care</span></span></span></div><section class="companion-card home-hero" aria-label="Selected companion">${petArt(p)}<h2>${title}</h2><p class="companion-caption">${progress}</p><div class="pet-progress" role="progressbar" aria-label="${p.hatched ? 'Growth' : 'Hatching'} progress" aria-valuenow="${p.hatched ? Math.round(p.growth * 100) : p.warmth * 25}" aria-valuemin="0" aria-valuemax="100"><span style="width:${p.hatched ? p.growth * 100 : p.warmth * 25}%"></span></div>${careButton(h)}</section><div class="section-title"><h2>Your companions</h2></div><div class="pet-roster">${h.roster.map(pet => `<button class="pet-tile ${pet.hatched ? '' : 'unhatched'} ${pet.id === p.id ? 'selected' : ''}" data-choose-pet="${pet.id}" aria-pressed="${pet.id === p.id}"><span class="pet-tile-icon" aria-hidden="true">${atlasFrame(pet)}</span><strong>${pet.name}</strong><small>${pet.hatched ? `Level ${pet.level} · ${pet.species}` : `Egg · ${pet.warmth}/4`}</small><span class="pet-selected">${pet.id === p.id ? 'Selected' : 'Choose'}</span></button>`).join('')}${Object.entries(
+    SPECIES,
+  )
+    .filter(([id]) => !state.collection.adopted.includes(id))
+    .map(
+      ([id, s]) =>
+        `<button class="pet-tile available-egg" data-adopt-egg="${id}" aria-label="Choose ${s.name}’s ${s.species.toLowerCase()} egg. Four care rewards to hatch."><span class="pet-tile-icon" aria-hidden="true">${atlasFrame({ id, warmth: 0 })}</span><strong>${s.name}</strong><small>4 care to hatch</small><span class="pet-selected">Choose egg ＋</span></button>`,
+    )
+    .join('')}</div>`;
 }
 
 export function bounceCompanion(button) {
@@ -82,6 +90,50 @@ export function bounceCompanion(button) {
     ],
     { duration: 650, easing: 'ease-in-out' },
   );
+}
+
+// Now and then the companion hops, or its egg wobbles, on its own so it feels
+// alive. It never interrupts a tap or celebration and stays still for
+// reduced motion. Renders replace the art, so each tick looks it up afresh.
+export function idleCompanion(button) {
+  const sprite = button.querySelector('.companion-bouncer');
+  if (
+    !sprite ||
+    sprite.getAnimations().length ||
+    matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+    return;
+  if (button.classList.contains('is-egg')) {
+    sprite.animate(
+      [
+        { transform: 'rotate(0)' },
+        { transform: 'rotate(-5deg)', offset: 0.2 },
+        { transform: 'rotate(4deg)', offset: 0.45 },
+        { transform: 'rotate(-2deg)', offset: 0.7 },
+        { transform: 'rotate(0)' },
+      ],
+      { duration: 700, easing: 'ease-in-out' },
+    );
+    return;
+  }
+  sprite.animate(
+    [
+      { transform: 'translateY(0) scale(1,1)' },
+      { transform: 'translateY(1px) scale(1.03,.97)', offset: 0.18 },
+      { transform: 'translateY(-8px) scale(.99,1.01)', offset: 0.45 },
+      { transform: 'translateY(0) scale(1.02,.98)', offset: 0.75 },
+      { transform: 'translateY(0) scale(1,1)' },
+    ],
+    { duration: 560, easing: 'ease-in-out', iterations: Math.random() < 0.3 ? 2 : 1 },
+  );
+}
+export function startIdleBounce() {
+  const tick = () => {
+    if (!document.hidden)
+      document.querySelectorAll('.companion-art[data-bounce]').forEach(idleCompanion);
+    setTimeout(tick, 6000 + Math.random() * 8000);
+  };
+  setTimeout(tick, 6000 + Math.random() * 8000);
 }
 
 // A short, local celebration. Decorative particles never intercept a tap.

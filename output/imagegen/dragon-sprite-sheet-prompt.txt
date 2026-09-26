@@ -1,0 +1,23 @@
+Generated with the built-in image-generation tool. Final atlas export: 2000 × 800 pixels; 400 × 400 cells; transparent gutters.
+
+Use case: stylized-concept.
+Create one NEW transparent PNG sprite sheet for a cute lavender baby-dragon companion. Use the supplied Pip sheet ONLY as the exact illustration style and ten-frame stage-order reference. Do not include any chicks.
+Asset specification: a regular 5-column by 2-row grid on an EXACT 5:2 canvas, preferably 2500 × 1000 pixels, with ten equal square cells. Each sprite must be completely isolated in its own cell, centered horizontally, aligned to the same ground baseline within its row. Maintain at least 10% clear transparent padding on ALL four sides of EVERY cell, including wings, horn tips, tails, shadows and shell fragments. Absolutely NOTHING may touch or cross any cell edge. Keep the outer canvas transparent and full-sized, do not crop the sheet to the artwork. No visible grid, no text or numbers.
+Visual style: exactly match Pip's polished 2D chibi game art, clean thick dark plum outlines, soft simple cel shading, warm glossy highlights, huge shiny plum eyes, pink blush, round friendly shapes, small subtle plum contact shadows. No realistic textures.
+New companion: an adorable lavender-purple baby dragon, cream belly, two small cream horns, rounded ears, little lilac bat wings with peach-pink membranes, tiny paws and a short curled tail. Keep the dragon's face, palette and anatomy consistent between cells. Small and cuddly, never scary. Egg is pale lilac cream with several lavender oval spots; keep its size, orientation and spot pattern identical across crack stages.
+Top row LEFT TO RIGHT, exactly:
+1. Whole uncracked egg.
+2. Same egg with one short thin jagged dark-line crack and subtle shadow.
+3. Same egg with a larger branching dark-line crack.
+4. Egg opening at the top, tiny dragon face peeking out beneath a slightly lifted shell cap, still mostly inside the egg.
+5. Just-hatched dragon sitting in a lower half-shell; only a couple shell chips close to the body, contained well inside the cell.
+Bottom row LEFT TO RIGHT, exactly:
+1. Tiny baby dragon seated with tucked wings, small horns, shy happy expression.
+2. Slightly larger young dragon standing, slightly bigger horns and wings, happy smile.
+3. Medium juvenile dragon, plumper body, gently opened small wings, cheerful expression.
+4. Larger friendly dragon with a small peach neckerchief, more developed wings and curled tail.
+5. Fully grown companion, still a cute rounded chibi dragon, biggest stage with peach neckerchief and developed wings. Wings should fold upward/close to its body so the entire silhouette comfortably fits inside its cell.
+Gradually increase the size over five growth stages while preserving the same square frame and baseline. The largest sprite including its shadow must fit within the central 80% of the cell. Stage 5 is NOT a large spread-wing pose.
+Background: genuinely transparent alpha, not solid black/white and not a painted checkerboard. No scenery, labels, watermarks, magic particles, flames, floating objects, or borders. Exactly ten sprites, five in each row. Match the supplied Pip sheet's stage sequence precisely; preserve strict cell containment and true 5:2 canvas proportions.
+
+Formatting refinement: Preserve all ten dragon sprites and their stage order; correct the layout to a 5:2 transparent canvas with equal cells and no artwork crossing cell edges.

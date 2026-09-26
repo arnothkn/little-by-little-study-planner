@@ -12,7 +12,7 @@ Run `npm start`. The real app is at http://localhost:4173/. For a working demo o
 
 ## Companion home
 
-Choose Minty's triceratops egg after Pip hatches. Adoption is free. The current catalog has one of each species and supports one unhatched egg at a time. Select either companion whenever you like; the selection determines the Today artwork and the recipient of care. Each keeps its own progress.
+After Pip hatches, every companion not yet adopted appears as an egg: Minty the triceratops and Mochi the dragon. Adoption is free. The catalog has one of each species and supports one unhatched egg at a time. Select any adopted companion whenever you like; the selection determines the Today artwork and the recipient of care. Each keeps its own progress.
 
 One reward warms the selected egg or feeds the selected hatched companion. Four warmings hatch an egg. Every three feeds reaches another level, up to level five (12 feeds). A fully grown companion cannot consume further rewards. Banked rewards have no daily spending cap and never expire. Finish the day does not silently feed a companion after onboarding.
 
@@ -42,7 +42,7 @@ Continuing, closing, or pressing Escape records `collection.introSeen` in the ex
 
 ## Artwork
 
-Each companion is one original ImageGen atlas with a transparent background and the same 5×2 grid: four egg frames, hatch, and five growth frames. `petArt()` picks the cell from progress, and an `atlas-<id>` class in `styles.css` picks the sheet, so a new species needs only its sheet and one CSS rule. Each sheet has a frame-map JSON beside it; the app does not read it. Pip's prompt is in `output/imagegen/`.
+Each companion is one original ImageGen atlas with a transparent background and the same 5×2 grid: four egg frames, hatch, and five growth frames. `petArt()` picks the cell from progress. `SPECIES` in `collection.js` is the catalog: each entry names the companion and its sheet in `dist/art/`. To add a companion, save its sheet there, add one `SPECIES` entry, and list the sheet in `sw.js`; `npm test` fails if a sheet is missing, not 5:2, has no alpha, or is not cached offline. Entry keys are stored in saves, so never rename or remove one. Each sheet has a frame-map JSON beside it; the app does not read it. Prompts are in `output/imagegen/`.
 
 ## Verification
 

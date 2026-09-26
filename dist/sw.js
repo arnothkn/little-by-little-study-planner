@@ -1,4 +1,4 @@
-const CACHE = 'little-by-little-v15';
+const CACHE = 'little-by-little-v16';
 const ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ const ASSETS = [
   './companion-intro.css',
   './art/pip-sprite-sheet.png',
   './art/triceratops-sprite-sheet.png',
+  './art/dragon-sprite-sheet.png',
   './icon.svg',
   './icon-180.png',
   './icon-192.png',

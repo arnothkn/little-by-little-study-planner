@@ -341,7 +341,7 @@
       }
       .wb-pair .pet-roster {
         flex: 1;
-        grid-template-columns: repeat(2, minmax(140px, 200px));
+        grid-template-columns: repeat(auto-fill, minmax(140px, 200px));
       }
       .wb-pair .pet-tile {
         min-height: 0;
@@ -399,7 +399,7 @@
       /* Sources and comparison */
       .wb-sources {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
         gap: 16px;
         margin-bottom: 16px;
       }
@@ -613,8 +613,10 @@
       <div class="eyebrow">LOCAL TOOL · NOT PART OF THE APP</div>
       <h1>Art workbench</h1>
       <p>
-        Pip and Minty, drawn by the app’s own renderer (<code>petArt()</code> in
-        <code>companion-view.js</code>, plus <code>styles.css</code>). Change files in
+        Every companion in <code>SPECIES</code>, drawn by the app’s own renderer (<code
+          >petArt()</code
+        >
+        in <code>companion-view.js</code>, plus <code>styles.css</code>). Change files in
         <code>art/</code>, then refresh. This page never reads or changes your saved plan.
       </p>
       <div class="wb-jump" role="navigation" aria-label="Sections">
@@ -649,7 +651,7 @@
       <section id="lifecycle">
         <h2>Lifecycle</h2>
         <p class="wb-lede">
-          Every stage, same progress data, both companions. The 192 size is the desktop Today card,
+          Every stage, same progress data, every companion. The 192 size is the desktop Today card,
           and 170 is the phone Today card. Tap the art to bounce it. Dark and Checker backgrounds
           show edge fringes.
         </p>
@@ -667,83 +669,54 @@
           One pipeline. Each companion is a 5 × 2 sprite sheet, and the app shows the cell that
           matches its progress.
         </p>
-        <div class="wb-sources">
-          <div class="wb-panel">
-            <h3>Pip <small id="pip-sheet-meta">sprite sheet</small></h3>
-            <div class="wb-sheet" id="pip-sheet"></div>
-          </div>
-          <div class="wb-panel">
-            <h3>Minty <small id="minty-sheet-meta">sprite sheet</small></h3>
-            <div class="wb-sheet" id="minty-sheet"></div>
-          </div>
-        </div>
+        <div class="wb-sources" id="sheets"></div>
         <div class="wb-panel" style="padding: 4px 4px">
           <table class="wb-compare">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Pip</th>
-                <th>Minty</th>
-              </tr>
-            </thead>
             <tbody>
               <tr>
                 <th>Artwork</th>
-                <td colspan="2">
-                  Original generated art. 2D sticker style, thick plum outline, cel shading.
-                </td>
+                <td>Original generated art. 2D sticker style, thick plum outline, cel shading.</td>
               </tr>
               <tr>
-                <th>Files</th>
+                <th>Catalog</th>
                 <td>
-                  <code>pip-sprite-sheet.png</code>, <span data-fill="pip-sheet-dims">…</span>
-                </td>
-                <td>
-                  <code>triceratops-sprite-sheet.png</code>,
-                  <span data-fill="minty-sheet-dims">…</span>
+                  <code>SPECIES</code> in <code>collection.js</code> gives each companion a name, a
+                  species and its sheet in <code>art/</code>. The sheet must also be listed in
+                  <code>sw.js</code> for offline use; <code>npm test</code> checks both.
                 </td>
               </tr>
               <tr>
                 <th>Egg stages</th>
                 <td>
-                  Four painted frames, <code>egg-0</code>–<code>egg-3</code>. Cracks and the chick
+                  Four painted frames, <code>egg-0</code>–<code>egg-3</code>. Cracks and the baby
                   peeking out are drawn into the art.
-                </td>
-                <td>
-                  Four painted frames, <code>egg-0</code>–<code>egg-3</code>. Cracks, glow and the
-                  frill peeking out are drawn into the art.
                 </td>
               </tr>
               <tr>
                 <th>Hatching</th>
-                <td colspan="2"><code>hatch</code> frame, shown at full size</td>
+                <td><code>hatch</code> frame, shown at full size</td>
               </tr>
               <tr>
                 <th>Growth</th>
                 <td>
-                  Five drawn frames, <code>level-1</code>–<code>level-5</code> (bigger, tuft,
-                  neckerchief). Changes only at a new level.
-                </td>
-                <td>
-                  Five drawn frames, <code>level-1</code>–<code>level-5</code> (bigger, leaf,
-                  neckerchief). Changes only at a new level.
+                  Five drawn frames, <code>level-1</code>–<code>level-5</code>. Changes only at a
+                  new level.
                 </td>
               </tr>
               <tr>
                 <th>Ground shadow</th>
-                <td colspan="2">Painted into every frame. No CSS shadow.</td>
+                <td>Painted into every frame. No CSS shadow.</td>
               </tr>
               <tr>
                 <th>Roster tile</th>
-                <td colspan="2">Shows the current frame</td>
+                <td>Shows the current frame</td>
               </tr>
               <tr>
                 <th>Renderer</th>
-                <td colspan="2">
-                  <code>petArt()</code> with <code>.atlas-frame</code>: a CSS background with
-                  <code>background-position</code> in % steps. <code>.atlas-pip</code> and
-                  <code>.atlas-minty</code> in <code>styles.css</code> pick the sheet. The JSON
-                  frame maps aren’t read by the app.
+                <td>
+                  <code>petArt()</code> with <code>.atlas-frame</code>: the sheet as a CSS
+                  background, moved with <code>background-position</code> in % steps. The JSON frame
+                  maps aren’t read by the app.
                 </td>
               </tr>
             </tbody>
@@ -770,8 +743,8 @@
           Measured from the source pixels and mapped to the rendered size shown in the lifecycle
           strip (<span data-fill="size">192</span> px). <b>Feet</b> is the gap from the bottom of
           the art box to the lowest solid pixel. <b>Sharpness</b> is the source pixels available ÷
-          the pixels a 3× iPhone screen needs. Red marks a large mismatch between the two
-          companions.
+          the pixels a 3× iPhone screen needs. Red marks a large mismatch with Pip, or a soft
+          source.
         </p>
         <div class="wb-table-wrap" id="table"></div>
       </section>
@@ -790,28 +763,7 @@
           <code>level-1</code>–<code>level-5</code> below. It’s a preview only: refresh to reset. To
           keep it, replace the file in <code>art/</code>.
         </p>
-        <div class="wb-drops">
-          <div class="wb-drop" data-drop="pip">
-            <h3>Replace Pip’s sheet</h3>
-            <p>Try a regenerated or higher-resolution sheet.</p>
-            <div class="row">
-              <label class="btn"
-                >Choose PNG…<input type="file" accept="image/png,image/webp" /></label
-              ><button type="button" data-reset hidden>Reset</button
-              ><span class="status">or drop a file here</span>
-            </div>
-          </div>
-          <div class="wb-drop" data-drop="minty">
-            <h3>Replace Minty’s sheet</h3>
-            <p>Try a regenerated or higher-resolution sheet.</p>
-            <div class="row">
-              <label class="btn"
-                >Choose PNG…<input type="file" accept="image/png,image/webp" /></label
-              ><button type="button" data-reset hidden>Reset</button
-              ><span class="status">or drop a file here</span>
-            </div>
-          </div>
-        </div>
+        <div class="wb-drops" id="drops"></div>
       </section>
     </main>
     <script type="module" src="./art-workbench.js"></script>

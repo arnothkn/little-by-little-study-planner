@@ -3,9 +3,12 @@ import { syncCompanion, companionStatus, finishCompanionDay } from './companion.
 export const HATCH_COST = 4,
   FEEDS_PER_LEVEL = 3,
   MAX_LEVEL = 5;
+// The catalog. Keys are saved in backups, so never rename or remove one; names can change.
+// Each sheet in art/ is a 5×2 atlas: egg-0…egg-3 and hatch on top, level-1…level-5 below.
 export const SPECIES = {
-  pip: { name: 'Pip', species: 'Chick' },
-  minty: { name: 'Minty', species: 'Triceratops' },
+  pip: { name: 'Pip', species: 'Chick', sheet: 'pip-sprite-sheet.png' },
+  minty: { name: 'Minty', species: 'Triceratops', sheet: 'triceratops-sprite-sheet.png' },
+  mochi: { name: 'Mochi', species: 'Dragon', sheet: 'dragon-sprite-sheet.png' },
 };
 const EXAM = '2026-10-15';
 const owns = (o, k) => Object.hasOwn(o, k);

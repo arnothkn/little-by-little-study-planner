@@ -17,6 +17,8 @@ import {
   finishCompanionDay,
 } from '../dist/companion.js';
 import { companionCard, petArt } from '../dist/companion-view.js';
+import { SPECIES } from '../dist/collection.js';
+import { readFileSync } from 'node:fs';
 const start = '2026-09-18';
 function fresh() {
   const s = createState(start);
@@ -314,10 +316,12 @@ test('each companion draws its own sprite sheet at the frame for its progress', 
   });
   const frame = html =>
     html
-      .match(/atlas-frame atlas-(\w+)" style="--sprite-x:(\d+)%;--sprite-y:(\d+)%/)
+      .match(
+        /data-species="(\w+)" style="background-image:url\('\.\/art\/[\w-]+\.png'\);--sprite-x:(\d+)%;--sprite-y:(\d+)%/,
+      )
       .slice(1)
       .join(' ');
-  for (const id of ['pip', 'minty']) {
+  for (const id of Object.keys(SPECIES)) {
     assert.equal(frame(petArt(pet(id, 0, 0))), `${id} 0 0`);
     assert.equal(frame(petArt(pet(id, 3, 0))), `${id} 75 0`);
     assert.equal(frame(petArt(pet(id, 4, 0))), `${id} 100 0`);
@@ -327,4 +331,16 @@ test('each companion draws its own sprite sheet at the frame for its progress', 
   const html = companionCard(fresh(), start);
   assert.equal(frame(html), 'pip 0 0');
   assert.doesNotMatch(html, /<img/);
+});
+test('every species has a 5×2 RGBA sprite sheet that works offline', () => {
+  const sw = readFileSync(new URL('../dist/sw.js', import.meta.url), 'utf8');
+  for (const [id, { sheet }] of Object.entries(SPECIES)) {
+    const png = readFileSync(new URL(`../dist/art/${sheet}`, import.meta.url));
+    assert.equal(png.toString('ascii', 12, 16), 'IHDR', `${id}: ${sheet} is not a PNG`);
+    const w = png.readUInt32BE(16),
+      h = png.readUInt32BE(20);
+    assert.ok(Math.abs(w / h - 2.5) < 0.01, `${id}: ${sheet} is ${w}×${h}, not 5:2`);
+    assert.equal(png[25], 6, `${id}: ${sheet} has no alpha channel`);
+    assert.ok(sw.includes(`'./art/${sheet}'`), `${id}: ${sheet} is missing from sw.js`);
+  }
 });

@@ -1,10 +1,11 @@
-// Art workbench: draws Pip and Minty through the production renderer and
-// measures their source pixels. Local tool only: it is not in sw.js and never
-// reads or writes saved progress.
+// Art workbench: draws every companion in SPECIES through the production
+// renderer and measures their source pixels. Local tool only: it is not in
+// sw.js and never reads or writes saved progress.
 import { petArt, atlasFrame, bounceCompanion } from './companion-view.js';
+import { SPECIES } from './collection.js';
 
-const SHEETS = { pip: './art/pip-sprite-sheet.png', minty: './art/triceratops-sprite-sheet.png' };
-const FRAME_MAP = './art/triceratops-sprite-sheet.json'; // Every sheet shares this layout.
+const IDS = Object.keys(SPECIES); // Pip comes first and is the reference for comparisons.
+const FRAME_MAP = './art/pip-sprite-sheet.json'; // Every sheet shares this layout.
 const PREFS_KEY = 'art-workbench.view';
 const STAGES = [
   { key: 'egg-0', title: 'Egg', rule: '0 of 4 rewards', warmth: 0, xp: 0 },
@@ -22,19 +23,23 @@ const STAGES = [
 const strip = document.getElementById('strip');
 const contexts = document.getElementById('contexts');
 const stageSelect = document.getElementById('stage-select');
-const overrides = { pip: null, minty: null };
-const metrics = { pip: {}, minty: {} };
+const overrides = Object.fromEntries(IDS.map(id => [id, null]));
+let metrics = {};
 let frameNames = {};
 let size = 192;
 let renderId = 0;
+
+const name = id => SPECIES[id].name;
+// A dropped preview replaces that companion's sheet everywhere on this page.
+const sheetUrl = id =>
+  new URL(overrides[id]?.url || `./art/${SPECIES[id].sheet}`, location.href).href;
 
 // Same derivation as replay() in collection.js.
 function pet(id, stage) {
   const hatched = stage.warmth === 4;
   return {
     id,
-    name: id === 'pip' ? 'Pip' : 'Minty',
-    species: id === 'pip' ? 'Chick' : 'Triceratops',
+    ...SPECIES[id],
     warmth: stage.warmth,
     xp: stage.xp,
     hatched,
@@ -54,7 +59,7 @@ function tile(id, stage) {
 }
 
 function applyOverrides(root) {
-  for (const id of ['pip', 'minty']) {
+  for (const id of IDS) {
     if (!overrides[id]) continue;
     root.querySelectorAll(`[data-pet="${id}"] .atlas-frame`).forEach(frame => {
       frame.style.backgroundImage = `url("${overrides[id].url}")`;
@@ -139,7 +144,7 @@ function source(host) {
   const row = Math.round(parseFloat(frame.style.getPropertyValue('--sprite-y')) / 100);
   const override = overrides[host.dataset.pet];
   return {
-    src: new URL(override?.url || SHEETS[host.dataset.pet], location.href).href,
+    src: sheetUrl(host.dataset.pet),
     col,
     row,
     cols: 5,
@@ -212,16 +217,14 @@ function renderStrip() {
     STAGES.map(s => `<div class="wb-colhead"><b>${s.title}</b><span>${s.rule}</span></div>`).join(
       '',
     ) +
-    ['pip', 'minty']
-      .map(
-        id =>
-          `<div class="wb-rowhead"><b>${id === 'pip' ? 'Pip' : 'Minty'}</b><small>${kind(id)}</small></div>` +
-          STAGES.map(
-            s =>
-              `<div class="wb-cell"><div class="wb-stage" data-pet="${id}" data-stage="${s.key}">${art(id, s)}<div class="wb-guides"></div></div><div class="wb-cap"></div></div>`,
-          ).join(''),
-      )
-      .join('');
+    IDS.map(
+      id =>
+        `<div class="wb-rowhead"><b>${name(id)}</b><small>${kind(id)}</small></div>` +
+        STAGES.map(
+          s =>
+            `<div class="wb-cell"><div class="wb-stage" data-pet="${id}" data-stage="${s.key}">${art(id, s)}<div class="wb-guides"></div></div><div class="wb-cap"></div></div>`,
+        ).join(''),
+    ).join('');
 }
 
 async function measureStrip(id) {
@@ -262,13 +265,11 @@ function renderContexts() {
     c =>
       `<div class="wb-context" data-context="${c.key}"><div><h3>${c.title}</h3><p>${c.note}</p><div class="wb-size"></div></div><div class="wb-pair">${
         c.key === 'tile'
-          ? `<div class="pet-roster">${tile('pip', s)}${tile('minty', s)}</div>`
-          : ['pip', 'minty']
-              .map(
-                id =>
-                  `<div class="companion-card${c.key === 'hero' ? ' home-hero' : ''}" data-pet="${id}">${art(id, s)}</div>`,
-              )
-              .join('')
+          ? `<div class="pet-roster">${IDS.map(id => tile(id, s)).join('')}</div>`
+          : IDS.map(
+              id =>
+                `<div class="companion-card${c.key === 'hero' ? ' home-hero' : ''}" data-pet="${id}">${art(id, s)}</div>`,
+            ).join('')
       }</div></div>`,
   ).join('');
 }
@@ -289,20 +290,29 @@ function annotateContexts() {
 function renderTable() {
   const n = v => Math.round(v);
   const pct = v => `${Math.round(Math.min(1, v) * 100)}%`;
-  const cells = (m, feetFlag) =>
-    m
-      ? `<td class="sep">${n(m.width)} × ${n(m.height)}</td><td class="${feetFlag ? 'flag' : ''}">${n(m.feet)}</td><td class="${m.sharp < 0.6 ? 'flag' : ''}">${pct(m.sharp)}</td>`
-      : '<td class="sep">–</td><td>–</td><td>–</td>';
-  const rows = STAGES.map(s => {
-    const p = metrics.pip[s.key],
-      m = metrics.minty[s.key];
-    const ratio = p && m ? m.height / p.height : null;
-    const feetFlag = p && m && Math.abs(m.feet - p.feet) > size * 0.06;
-    return `<tr><td>${s.title} <span style="color:var(--muted)">· ${s.rule}</span></td>${cells(p, feetFlag)}${cells(m, feetFlag)}<td class="sep ${ratio && (ratio < 0.85 || ratio > 1.18) ? 'flag' : ''}">${ratio ? ratio.toFixed(2) + '×' : '–'}</td></tr>`;
-  }).join('');
+  const ref = IDS[0];
+  // The others get a height ratio column, and feet or height far from Pip's are flagged.
+  const cells = (id, s) => {
+    const m = metrics[id][s.key],
+      r = metrics[ref][s.key],
+      extra = id !== ref;
+    if (!m) return '<td class="sep">–</td><td>–</td><td>–</td>' + (extra ? '<td>–</td>' : '');
+    const ratio = extra && r ? m.height / r.height : null;
+    const feetFlag = extra && r && Math.abs(m.feet - r.feet) > size * 0.06;
+    return (
+      `<td class="sep">${n(m.width)} × ${n(m.height)}</td><td class="${feetFlag ? 'flag' : ''}">${n(m.feet)}</td><td class="${m.sharp < 0.6 ? 'flag' : ''}">${pct(m.sharp)}</td>` +
+      (extra
+        ? `<td class="${ratio && (ratio < 0.85 || ratio > 1.18) ? 'flag' : ''}">${ratio ? ratio.toFixed(2) + '×' : '–'}</td>`
+        : '')
+    );
+  };
+  const rows = STAGES.map(
+    s =>
+      `<tr><td>${s.title} <span style="color:var(--muted)">· ${s.rule}</span></td>${IDS.map(id => cells(id, s)).join('')}</tr>`,
+  ).join('');
   document.getElementById('table').innerHTML = `<table class="wb-table"><thead>
-    <tr><th></th><th class="grp sep" colspan="3">Pip</th><th class="grp sep" colspan="3">Minty</th><th class="sep"></th></tr>
-    <tr><th>Stage</th><th class="sep">Solid size (px)</th><th>Feet (px)</th><th>Sharpness</th><th class="sep">Solid size (px)</th><th>Feet (px)</th><th>Sharpness</th><th class="sep">Minty ÷ Pip height</th></tr>
+    <tr><th></th>${IDS.map(id => `<th class="grp sep" colspan="${id === ref ? 3 : 4}">${name(id)}</th>`).join('')}</tr>
+    <tr><th>Stage</th>${IDS.map(id => `<th class="sep">Solid size (px)</th><th>Feet (px)</th><th>Sharpness</th>${id === ref ? '' : `<th>÷ ${name(ref)} height</th>`}`).join('')}</tr>
     </thead><tbody>${rows}</tbody></table>`;
   document.querySelectorAll('[data-fill="size"]').forEach(el => {
     el.textContent = size;
@@ -335,82 +345,97 @@ async function renderSources(id) {
     };
   };
 
-  const figs = await Promise.all(
-    ['pip', 'minty'].map(pet =>
-      sheetFigure(new URL(overrides[pet]?.url || SHEETS[pet], location.href).href),
-    ),
-  );
+  const figs = await Promise.all(IDS.map(pet => sheetFigure(sheetUrl(pet))));
   if (id !== renderId) return;
-  ['pip', 'minty'].forEach((pet, i) => {
-    const m = figs[i].meta,
-      dims = `${m.width} × ${m.height}`,
-      cell = `${+m.cellW.toFixed(1)} × ${+m.cellH.toFixed(1)}`;
-    document.getElementById(`${pet}-sheet`).innerHTML = figs[i].html;
-    document.getElementById(`${pet}-sheet-meta`).textContent =
-      `${overrides[pet] ? `${overrides[pet].name} (preview)` : 'sprite sheet'} · ${dims} · cells ${cell}`;
-    if (!overrides[pet])
-      document.querySelectorAll(`[data-fill="${pet}-sheet-dims"]`).forEach(el => {
-        el.textContent = `${dims}, cells ${cell}`;
-      });
-  });
+  document.getElementById('sheets').innerHTML = IDS.map((pet, i) => {
+    const m = figs[i].meta;
+    return `<div class="wb-panel"><h3>${name(pet)} <small>${overrides[pet] ? `${overrides[pet].name} (preview)` : SPECIES[pet].sheet} · ${m.width} × ${m.height} · cells ${+m.cellW.toFixed(1)} × ${+m.cellH.toFixed(1)}</small></h3><div class="wb-sheet">${figs[i].html}</div></div>`;
+  }).join('');
 }
 
 // Notes that depend on measurements are only listed when the numbers support them.
 async function renderIssues() {
   const px = v => Math.round(v);
   const pct = v => `${Math.round(Math.min(1, v) * 100)}%`;
-  const pip = metrics.pip,
-    minty = metrics.minty;
-  const sheets = await Promise.all(
-    ['pip', 'minty'].map(pet =>
-      bounds(new URL(overrides[pet]?.url || SHEETS[pet], location.href).href, 0, 0, 5, 2),
+  const ref = IDS[0],
+    list = [];
+  const cells = await Promise.all(
+    IDS.map(id =>
+      Promise.all(
+        Array.from({ length: 10 }, (_, i) => bounds(sheetUrl(id), i % 5, Math.floor(i / 5), 5, 2)),
+      ),
     ),
   );
-  const list = [];
-  const shrinks = [
-    ['Pip', pip],
-    ['Minty', minty],
-  ].filter(([, m]) => m.hatch && m['level-1'] && m['level-1'].height < m.hatch.height * 0.95);
+  // Anything touching its cell's edge is clipped in its own frame and shows as a sliver in the next.
+  const touching = IDS.flatMap((id, i) =>
+    cells[i].flatMap((b, c) =>
+      b.soft && (b.soft.x0 === 0 || b.soft.y0 === 0 || b.soft.x1 === 1 || b.soft.y1 === 1)
+        ? [`${name(id)} ${frameNames[`${c % 5},${Math.floor(c / 5)}`] || `cell ${c + 1}`}`]
+        : [],
+    ),
+  );
+  if (touching.length)
+    list.push({
+      title: 'Art touches a cell edge',
+      text: 'It gets cut off in its own frame and leaks into the neighbouring one. Every sprite, shadow and shell fragment must stay inside its cell.',
+      fact: `Touching: ${touching.join(', ')}.`,
+    });
+  const shrinks = IDS.filter(
+    id =>
+      metrics[id].hatch &&
+      metrics[id]['level-1'] &&
+      metrics[id]['level-1'].height < metrics[id].hatch.height * 0.95,
+  );
   if (shrinks.length)
     list.push({
-      title: `${shrinks.length === 2 ? 'Both shrink' : `${shrinks[0][0]} shrinks`} on the first feed`,
+      title: `${shrinks.length === IDS.length ? 'Every companion shrinks' : `${shrinks.map(name).join(' and ')} shrink${shrinks.length === 1 ? 's' : ''}`} on the first feed`,
       text: 'The hatch picture is drawn larger than level 1, so the companion gets smaller the moment you first feed it.',
-      fact: `At ${size} px: ${shrinks.map(([name, m]) => `${name} ${px(m.hatch.height)} → ${px(m['level-1'].height)} px tall`).join(', ')}.`,
+      fact: `At ${size} px: ${shrinks.map(id => `${name(id)} ${px(metrics[id].hatch.height)} → ${px(metrics[id]['level-1'].height)} px tall`).join(', ')}.`,
     });
-  // Feet are measured from the bottom of the art box, so a gap means one companion floats or sinks.
-  const drift = STAGES.filter(
-    s => pip[s.key] && minty[s.key] && Math.abs(pip[s.key].feet - minty[s.key].feet) > size * 0.06,
+  // Feet are measured from the bottom of the art box, so a gap means a companion floats or sinks.
+  const drift = IDS.slice(1).flatMap(id =>
+    STAGES.filter(
+      s =>
+        metrics[ref][s.key] &&
+        metrics[id][s.key] &&
+        Math.abs(metrics[ref][s.key].feet - metrics[id][s.key].feet) > size * 0.06,
+    ).map(
+      s =>
+        `${name(id)} ${s.key} ${px(metrics[id][s.key].feet)} vs ${px(metrics[ref][s.key].feet)} px`,
+    ),
   );
   if (drift.length)
     list.push({
       title: 'Feet don’t line up',
-      text: 'The painted ground shadows sit at different heights in the two sheets, so switching companions moves the character up or down.',
-      fact: `At ${size} px: ${drift.map(s => `${s.key} Pip ${px(pip[s.key].feet)} vs Minty ${px(minty[s.key].feet)} px`).join(', ')}.`,
+      text: `Some painted ground shadows sit higher or lower than ${name(ref)}’s, so switching companions moves the character up or down.`,
+      fact: `At ${size} px: ${drift.join(', ')}.`,
     });
   list.push({
-    about: 'both',
+    about: 'all',
     title: 'Growth shows only at a new level',
-    text: 'Both sheets have five growth frames, so 2 of every 3 feeds show no visible change.',
+    text: 'Every sheet has five growth frames, so 2 of every 3 feeds show no visible change.',
   });
   // Full-grown frames are drawn at full size, so they show the worst case.
-  const grown = [pip['level-5'], minty['level-5']];
+  const grown = IDS.map(id => metrics[id]['level-5']);
   if (grown.every(Boolean) && grown.some(m => m.sharp < 0.9))
     list.push({
       title: 'Soft on iPhone',
       text: `A 3× screen needs three source pixels per CSS pixel: ${size * 3} px across for a ${size} px frame.`,
-      fact: `At ${size} px, Pip’s ${+sheets[0].cellW.toFixed(1)} px cells give ${pct(grown[0].sharp)} and Minty’s ${+sheets[1].cellW.toFixed(1)} px cells give ${pct(grown[1].sharp)}. 640 px cells stay sharp up to 213 px.`,
+      fact: `At ${size} px: ${IDS.map((id, i) => `${name(id)}’s ${+cells[i][0].cellW.toFixed(1)} px cells give ${pct(grown[i].sharp)}`).join(', ')}. 640 px cells stay sharp up to 213 px.`,
     });
-  const uneven = sheets.find(
-    sheet => !Number.isInteger(sheet.cellW) || !Number.isInteger(sheet.cellH),
+  const uneven = IDS.filter(
+    (id, i) => !Number.isInteger(cells[i][0].cellW) || !Number.isInteger(cells[i][0].cellH),
   );
-  if (uneven)
+  if (uneven.length) {
+    const u = cells[IDS.indexOf(uneven[0])][0];
     list.push({
       title: 'Sheet cells aren’t whole pixels',
-      text: `${uneven.width} ÷ 5 = ${+uneven.cellW.toFixed(1)} and ${uneven.height} ÷ 2 = ${+uneven.cellH.toFixed(1)}. The app copes because it positions frames in percentages, but slicing tools will be a pixel off. Export future sheets with whole-number cells, such as 5 × 640 by 2 × 640.`,
+      text: `${uneven.map(name).join(' and ')}: ${u.width} ÷ 5 = ${+u.cellW.toFixed(1)} and ${u.height} ÷ 2 = ${+u.cellH.toFixed(1)}. The app copes because it positions frames in percentages, but slicing tools will be a pixel off. Export future sheets with whole-number cells, such as 5 × 640 by 2 × 640.`,
     });
+  }
   // Notes marked `about` describe the current files, so a preview hides them.
-  const current = i => !i.about || !(overrides.pip || overrides.minty);
-  const previewing = overrides.pip || overrides.minty;
+  const previewing = IDS.some(id => overrides[id]);
+  const current = i => !i.about || !previewing;
   document.getElementById('issues').innerHTML =
     (previewing
       ? '<p class="wb-lede" style="grid-column:1/-1;margin:0">A preview is loaded. Notes about the files it replaces are hidden.</p>'
@@ -427,8 +452,7 @@ async function renderIssues() {
 async function renderAll() {
   const id = ++renderId;
   document.body.style.setProperty('--s', `${size}px`);
-  metrics.pip = {};
-  metrics.minty = {};
+  metrics = Object.fromEntries(IDS.map(id => [id, {}]));
   renderStrip();
   renderContexts();
   applyOverrides(document);
@@ -525,6 +549,10 @@ function setupDrops() {
   // A file dropped outside a drop zone would otherwise replace this page.
   addEventListener('dragover', e => e.preventDefault());
   addEventListener('drop', e => e.preventDefault());
+  document.getElementById('drops').innerHTML = IDS.map(
+    id => `<div class="wb-drop" data-drop="${id}"><h3>Replace ${name(id)}’s sheet</h3><p>Try a regenerated or higher-resolution sheet.</p>
+    <div class="row"><label class="btn">Choose PNG…<input type="file" accept="image/png,image/webp"></label><button type="button" data-reset hidden>Reset</button><span class="status">or drop a file here</span></div></div>`,
+  ).join('');
   for (const zone of document.querySelectorAll('[data-drop]')) {
     const id = zone.dataset.drop,
       input = zone.querySelector('input'),

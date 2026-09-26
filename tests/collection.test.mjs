@@ -18,6 +18,7 @@ import {
   toggleCareGoal,
   dailyRewardStatus,
 } from '../dist/collection.js';
+import { companionsPage } from '../dist/companion-view.js';
 const START = '2026-09-18';
 function fresh() {
   const s = createState(START);
@@ -238,4 +239,25 @@ test('introduction dismissal survives saving, restoring and reward reconciliatio
     invalid.collection.introSeen = value;
     assert.throws(() => validateState(invalid), /collection/);
   }
+});
+test('every unadopted species is offered as an egg; Mochi adopts and hatches like Minty', () => {
+  const day = '2026-09-29',
+    s = journey(day);
+  let html = companionsPage(s, day);
+  assert.match(html, /data-adopt-egg="minty"/);
+  assert.match(html, /data-adopt-egg="mochi"/);
+  assert.match(html, /Choose Mochi’s dragon egg/);
+  adoptEgg(s, 'mochi', day);
+  assert.throws(() => adoptEgg(s, 'minty', day));
+  html = companionsPage(s, day);
+  assert.doesNotMatch(html, /data-adopt-egg="mochi"/);
+  assert.match(html, /data-adopt-egg="minty"/);
+  for (let i = 0; i < 4; i++) spendCare(s, day);
+  const p = collectionStatus(s, day).selected;
+  assert.equal(p.id, 'mochi');
+  assert.equal(p.hatched, true);
+  assert.equal(p.species, 'Dragon');
+  const restored = validateState(JSON.parse(JSON.stringify(s)));
+  syncCollection(restored, day);
+  assert.deepEqual(restored, s);
 });

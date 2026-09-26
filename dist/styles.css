@@ -1901,12 +1901,6 @@ nav.has-highlight .nav-item.active {
   background: var(--sprite-x) var(--sprite-y) / 500% 200% no-repeat;
   pointer-events: none;
 }
-.atlas-pip {
-  background-image: url('./art/pip-sprite-sheet.png');
-}
-.atlas-minty {
-  background-image: url('./art/triceratops-sprite-sheet.png');
-}
 .atlas-art .companion-bouncer {
   inset: 6px 0;
   overflow: visible;

@@ -1,0 +1,20 @@
+Edited using the built-in image-generation tool. Exported to a 2000×800 transparent atlas with ten 400×400 cells and verified transparent gutters.
+
+Use case: precise-object-edit.
+Edit the supplied lavender dragon game sprite sheet. Preserve its cute 2D style, purple-and-cream palette, pink wing membranes, dark plum outlines, glossy eyes, egg design and exact stage order. Fix anatomy and create meaningful growth, not just scaling.
+CRITICAL ANATOMY: this dragon always has TWO ARMS ending in TWO PAWS, TWO LEGS ending in TWO FEET, and a SEPARATE PAIR OF WINGS attached to its upper back. Wings are NOT arms. Every visible baby/juvenile/adult dragon must visibly show BOTH front arms with both hands; do not hide a far arm behind its belly or replace a forearm with a wing. Use a frontal or very slight three-quarter view so BOTH arms are plainly readable. No extra or missing limbs.
+Canvas: 2000×800 transparent PNG, exactly 5 columns × 2 rows of equal 400×400 cells, no text, no grid. Each sprite plus shadow stays inside the central 80% of its own cell. Transparent gutters between every cell and around canvas. NO cropping.
+Top row left to right:
+1. Preserve whole egg unchanged.
+2. Preserve small-crack egg unchanged.
+3. Preserve larger-crack egg unchanged.
+4. Dragon peeking out with head and TWO little front paws visibly gripping the left and right shell rim, cap above its head. Body remains in egg.
+5. Just-hatched dragon sitting in half-shell, TWO arms with TWO separate paws resting on the shell rim, two little wings clearly behind its shoulders.
+Bottom row left to right, make each an unmistakable evolution:
+1. Tiny round seated baby, stubby horns and tiny wings, TWO short arms with paws resting on its knees, two little feet pointing forward. Keep close to reference.
+2. Toddler standing front-facing, round belly, TWO arms down at its sides with visible paws, small wings behind. Keep close to reference but correct missing arm.
+3. Playful juvenile: more upright pear-shaped torso, slightly longer neck and horns, TWO arms clearly separated from torso: its RIGHT arm raised in a friendly wave with open paw, its LEFT arm bent with paw held at chest. Two feet grounded. Small upward folded wings behind, cheerful open-mouth smile. NO scarf yet.
+4. Confident adolescent: different SILHOUETTE and POSE, standing with TWO hands on its hips, elbows out, BOTH arms visible in front of its two wings. Small peach neckerchief, slightly longer curved cream horns, small neat ridge of darker purple scales along neck/tail, longer upward-curled tail. Friendly closed-mouth confident smile, torso visibly more developed than stage 3.
+5. Mature companion: clearly DIFFERENT from stage 4, proud but adorable, slightly longer dragon snout, gently swept-back horns, a few subtle cream belly plates, fuller peach neckerchief. TWO arms held forward and open in a welcoming hug, BOTH paws plainly visible with rounded fingers, separate from wings. Two wings folded back behind the shoulders with a taller scalloped silhouette; slightly larger feet and a longer tail ending in a small lavender spade, all kept compact inside the cell. Warm happy expression. A grown cute dragon, NOT a larger clone of the adolescent; preserve same identity.
+The last three frames must differ in posture, arm pose, horn shape, wing development, torso proportions and tail detail. Do NOT reuse one silhouette at three sizes. Preserve gradual overall size progression, fixed cell centers and consistent ground baseline.
+No new objects, food, flames, particles, letters, watermark or background. TRUE alpha transparency, NOT a painted checkerboard. Exactly 10 complete sprites in a strict regular 5×2 atlas, aspect ratio EXACTLY 5:2, with no clipped parts or artwork crossing any cell edge.
