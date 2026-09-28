@@ -1,16 +1,13 @@
 # Companion artwork
 
-Egg, Hatching chick, and Front-facing baby chick: Microsoft Fluent Emoji, copyright Microsoft Corporation, MIT License (included in LICENSE-Microsoft.txt).
+## Pip the chick
 
-Source: https://github.com/microsoft/fluentui-emoji
+`pip-sprite-sheet.png` is original ImageGen artwork created for this app, drawn to match Minty's atlas in style and layout. The prompt is in `output/imagegen/pip-sprite-sheet-prompt.txt`. It is a 1983×793 transparent atlas with the same five columns and two rows as Minty's, and `pip-sprite-sheet.json` lists the same frames. The level-5 chick was moved down 12 px after generation so its tuft no longer crosses into the hatch cell above.
 
-Original PNG files:
-- https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Egg/3D/egg_3d.png
-- https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Hatching%20chick/3D/hatching_chick_3d.png
-- https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Front-facing%20baby%20chick/3D/front-facing_baby_chick_3d.png
+## Mochi the dragon
 
-PNGs are bundled unchanged for consistent rendering and offline access. The app adds a separate SVG crack overlay and varies the chick's displayed size to show earned progress.
+`dragon-sprite-sheet.png` is original ImageGen artwork created for this app, using Pip's sheet as the style and stage-order reference. The prompts, including a later anatomy fix, and the sheet from before that fix are in `output/imagegen/`. It is a 2000×800 transparent atlas with whole-pixel 400×400 cells in the same five columns and two rows, and `dragon-sprite-sheet.json` lists the same frames.
 
 ## Minty the triceratops
 
-`triceratops-sprite-sheet.png` is original ImageGen artwork created for this app using the supplied reference only for broad visual direction. The 1983×793 transparent atlas uses five columns and two rows. The top row contains four egg states and a hatch; the bottom row contains five growth stages. `triceratops-sprite-sheet.json` lists grid coordinates. The Microsoft license above applies to Pip's Fluent assets, not this generated atlas.
+`triceratops-sprite-sheet.png` is original ImageGen artwork created for this app using the supplied reference only for broad visual direction. The 1983×793 transparent atlas uses five columns and two rows. The top row contains four egg states and a hatch; the bottom row contains five growth stages. `triceratops-sprite-sheet.json` lists grid coordinates.
